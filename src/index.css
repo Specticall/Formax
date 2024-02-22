@@ -1,0 +1,24 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: "Inter";
+  background-color: rgb(19, 19, 19);
+}
+
+@layer base {
+  :root {
+    --clr-bg: 14 14 14;
+    --clr-main-0: 16 16 16;
+    --clr-main-100: 19 19 19;
+    --clr-main-200: 119 126 147;
+    --clr-main-300: 137 145 165;
+    --clr-main-400: 255 255 255;
+    --clr-form: 23 24 28;
+    --clr-border: 49 49 49;
+    --clr-accent: 84 81 255;
+    --clr-danger: 255 85 146;
+    --clr-accent-light: 157 81 255;
+  }
+}
