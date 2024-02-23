@@ -1,4 +1,4 @@
-import { IFormData, TFormFields } from "../slice/editorSlice";
+import { IFormData, TFormFields } from "../types/formTypes";
 
 export const COLOR_ACCENT = "#5451E1";
 

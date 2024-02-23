@@ -1,6 +1,7 @@
 import { ChangeEventHandler, HTMLAttributes } from "react";
 import { useAppDispatch, useAppSelector } from "./RTKHooks";
-import { TFormFieldNames, watchField } from "../slice/editorSlice";
+import { updateTextField } from "../slice/editorSlice";
+import { TFormFieldNames } from "../types/formTypes";
 
 type TEditorProps = {
   formId?: string | null;
@@ -9,6 +10,13 @@ type TEditorProps = {
 export type TEditorRegisterReturn = {
   onChange: ChangeEventHandler<HTMLInputElement>;
   defaultValue: HTMLAttributes<HTMLInputElement>["defaultValue"];
+};
+
+export type TFormDataAssertion = Record<string, string | string[]>;
+
+export type TFormControl = {
+  formId?: string | null;
+  formData: TFormDataAssertion;
 };
 
 /**
@@ -23,7 +31,7 @@ export function useEditor({ formId }: TEditorProps) {
   // TEMP -> Should use an action creator for this.
   const formData = useAppSelector((state) => {
     return state.editor.formData?.find((data) => data.formId === formId);
-  }) as Record<string, string | string[]>;
+  }) as TFormDataAssertion;
 
   function register(fieldType: TFormFieldNames): TEditorRegisterReturn {
     return {
@@ -33,7 +41,7 @@ export function useEditor({ formId }: TEditorProps) {
       onChange(e) {
         if (!formId) throw new Error(`Form id for field ${fieldType} is null`);
         dispatch(
-          watchField({ value: e.target.value, formId, field: fieldType })
+          updateTextField({ value: e.target.value, formId, field: fieldType })
         );
       },
 
@@ -44,5 +52,10 @@ export function useEditor({ formId }: TEditorProps) {
     };
   }
 
-  return { register };
+  /**
+   * Similar to react hook form's control. Allows other editor hooks to have the same data as useEditor e.g. formId
+   */
+  const control: TFormControl = { formId, formData };
+
+  return { register, control };
 }

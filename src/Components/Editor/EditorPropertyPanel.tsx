@@ -2,9 +2,11 @@ import { FormOptions } from "./FormOptions";
 import IconBox from "../General/IconBox";
 import { TextField } from "../StyledInputs/TextField";
 import { ExtractType } from "../../helper/helper";
-import { IFormData } from "../../slice/editorSlice";
+import { IFormData } from "../../types/formTypes";
 import { useAppSelector } from "../../Hooks/RTKHooks";
 import { useEditor } from "../../Hooks/useEditor";
+import Button from "../General/Button";
+import { useEditorFieldArray } from "../../Hooks/useEditorFieldArray";
 
 type TFormTypes = ExtractType<IFormData> | "none";
 
@@ -124,6 +126,52 @@ function PropertyFormLong() {
     </>
   );
 }
+
 function PropertyFormMulti() {
-  return <div>Multi</div>;
+  const selectedForm = useAppSelector((state) => state.editor.selectedForm);
+
+  const { register, control } = useEditor({
+    formId: selectedForm?.formId,
+  });
+  const { registerFieldArray, handleAppend } = useEditorFieldArray({
+    name: "options",
+    control,
+  });
+
+  return (
+    <>
+      <header className="flex text-main-400 text-body items-center gap-3 border-b-[1px] border-border px-6 py-5">
+        <IconBox>
+          <i className="bx bx-detail"></i>
+        </IconBox>
+        <h2>Long Answer</h2>
+      </header>
+      <div className="flex flex-col gap-4 px-6 pt-6 pb-8 border-b-[1px] border-border">
+        <TextField
+          label="Title"
+          placeholder="Your title"
+          editorRegister={register("heading")}
+        />
+        <p className="text-body text-main-400 mt-4">Options</p>
+        {/* //// Option Field Arrat ///// */}
+        {selectedForm?.type === "multi" &&
+          selectedForm.options.map((_, index) => {
+            return (
+              <TextField
+                placeholder="Your Options"
+                editorRegister={registerFieldArray(index)}
+              />
+            );
+          })}
+        <Button
+          className="py-3 bg-neutral-950"
+          style="secondary"
+          onClick={handleAppend}
+        >
+          + Add Option
+        </Button>
+      </div>
+      <FormOptions />
+    </>
+  );
 }

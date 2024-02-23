@@ -36,8 +36,10 @@ export default function Button({
   const navigate = useNavigate();
 
   const handleClick: MouseEventHandler = (e) => {
-    e.preventDefault();
-    if (to) navigate(to);
+    if (to) {
+      e.preventDefault();
+      navigate(to);
+    }
     onClick();
   };
 
