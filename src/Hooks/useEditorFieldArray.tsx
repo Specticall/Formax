@@ -2,6 +2,7 @@ import { ChangeEventHandler, HTMLAttributes } from "react";
 import { addArrayField, updateArrayField } from "../slice/editorSlice";
 import { useAppDispatch } from "./RTKHooks";
 import { TFormControl } from "./useEditor";
+import { TMultiField } from "../types/formTypes";
 
 export type TEditorRegisterFieldArrayReturn = {
   onChange: ChangeEventHandler<HTMLInputElement>;
@@ -12,7 +13,7 @@ export function useEditorFieldArray({
   name,
   control,
 }: {
-  name: string;
+  name: keyof TMultiField;
   control: TFormControl;
 }) {
   const dispatch = useAppDispatch();

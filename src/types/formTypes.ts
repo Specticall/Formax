@@ -6,18 +6,21 @@ type TFormShort = {
   heading: string;
   placeholder?: string;
   output: "string";
+  formType: "textField";
 };
 type TFormTitle = {
   type: "title";
   title: string;
   subtitle: string;
   output: "string";
+  formType: "textPlain";
 };
 type TFormLong = {
   type: "long";
   heading: string;
   placeholder?: string;
   output: "string";
+  formType: "textField";
 };
 type TFormMulti = {
   type: "multi";
@@ -25,6 +28,7 @@ type TFormMulti = {
   options: string[];
   selected: Record<number, boolean>;
   output: "stringArray";
+  formType: "textMulti";
 };
 
 export type IFormData = { formId: string } & (
@@ -33,6 +37,16 @@ export type IFormData = { formId: string } & (
   | TFormLong
   | TFormMulti
 );
+
+/**
+ * These are extracted data types used to narrow the typescript type checker. Mostly used with keyof to retrieve the keys similar values.
+ *
+ */
+
+export type TTextField = Extract<IFormData, { formType: "textField" }>;
+export type TTextPlain = Extract<IFormData, { formType: "textPlain" }>;
+export type TMultiField = Extract<IFormData, { formType: "textMulti" }>;
+
 // Extract field names from each type in the union
 type FieldNames<T> = T extends { [key: string]: unknown } ? keyof T : never;
 // Extract field names from all types in the union and combine them into a single union type

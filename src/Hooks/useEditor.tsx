@@ -1,7 +1,7 @@
 import { ChangeEventHandler, HTMLAttributes } from "react";
 import { useAppDispatch, useAppSelector } from "./RTKHooks";
 import { updateTextField } from "../slice/editorSlice";
-import { TFormFieldNames } from "../types/formTypes";
+import { TTextField, TTextPlain } from "../types/formTypes";
 
 type TEditorProps = {
   formId?: string | null;
@@ -33,7 +33,9 @@ export function useEditor({ formId }: TEditorProps) {
     return state.editor.formData?.find((data) => data.formId === formId);
   }) as TFormDataAssertion;
 
-  function register(fieldType: TFormFieldNames): TEditorRegisterReturn {
+  function register(
+    fieldType: keyof TTextField | keyof TTextPlain
+  ): TEditorRegisterReturn {
     return {
       /*
       Returns an onChange listener that updates the editor store everytime the user changes the input field

@@ -1,5 +1,11 @@
 import { CaseReducer, PayloadAction, createSlice } from "@reduxjs/toolkit";
-import { IFormData, IEditor } from "../types/formTypes";
+import {
+  IFormData,
+  IEditor,
+  TTextField,
+  TTextPlain,
+  TMultiField,
+} from "../types/formTypes";
 import { v4 as uuidv4 } from "uuid";
 
 export const formData: IFormData[] = [
@@ -9,6 +15,7 @@ export const formData: IFormData[] = [
     subtitle: "Please fill this section and tell us about your experience",
     formId: "ID_TITLE",
     output: "string",
+    formType: "textPlain",
   },
   {
     type: "long",
@@ -16,6 +23,7 @@ export const formData: IFormData[] = [
     placeholder: "I'm familiar with many technologies such as...",
     formId: "ID_LONG",
     output: "string",
+    formType: "textField",
   },
   {
     type: "short",
@@ -23,6 +31,7 @@ export const formData: IFormData[] = [
     placeholder: "Joseph Yusmita",
     formId: "ID_SHORT",
     output: "string",
+    formType: "textField",
   },
   {
     type: "multi",
@@ -31,6 +40,7 @@ export const formData: IFormData[] = [
     formId: "ID_MULTI",
     selected: { 1: true, 3: true },
     output: "stringArray",
+    formType: "textMulti",
   },
 ];
 
@@ -59,7 +69,7 @@ const updateTextFieldAction: CaseReducer<
   PayloadAction<{
     value: string;
     formId: string;
-    field: string;
+    field: keyof TTextField | keyof TTextPlain;
   }>
 > = (state, action) => {
   // 1. Retrieve neccessary data from the payload
@@ -84,9 +94,13 @@ const updateTextFieldAction: CaseReducer<
   const formDataCopy = { ...state.formData[targetIndex] };
 
   // 5. Assign the value
-  // Really don't have time to think about how to please the compiler with this one. Indexing a union object properly is quite difficult. Will fix sometime later in the future
-  // eslint-disable-next-line
-  (formDataCopy as any)[field] = value;
+  (
+    formDataCopy as {
+      [key in keyof TTextField]: unknown;
+    } & {
+      [key in keyof TTextPlain]: unknown;
+    }
+  )[field] = value;
 
   // 5. Update the state itself.
   state.formData[targetIndex] = formDataCopy;
@@ -97,7 +111,7 @@ const updateArrayFieldAction: CaseReducer<
   PayloadAction<{
     value: string;
     formId: string;
-    field: string;
+    field: keyof TMultiField;
     index: number;
   }>
 > = (state, action) => {
@@ -120,19 +134,19 @@ const updateArrayFieldAction: CaseReducer<
 
   // // 4. Create a shallow copy of the form Data
   // // NOTE : This is required because formDataCopy is readonly.
-  const formDataCopy = { ...state.formData[targetIndex] } as Record<
-    string,
-    unknown
-  >;
-
-  // 5. Typescript typeguard to only allow type: stringArray to pass
-  if (formDataCopy?.output !== "stringArray") return;
+  const formDataCopy = { ...state.formData[targetIndex] };
 
   // 6. Assign the user inputted value.
   /*
   NOTE: We don't need to assign state.formData[targetIndex] = formDataCopy because formDataCopy is a shallow copy, as such formDataCopy[field] still points to the same address as state.formData[targetIndex][field]
   */
-  (formDataCopy[field] as unknown[])[index] = value;
+  const targetField = (formDataCopy as { [key in keyof TMultiField]: unknown })[
+    field
+  ];
+
+  if (Array.isArray(targetField)) {
+    targetField[index] = value;
+  }
 };
 
 const initialState: IEditor = {
