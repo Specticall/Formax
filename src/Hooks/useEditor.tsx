@@ -1,7 +1,8 @@
 import { ChangeEventHandler, HTMLAttributes } from "react";
 import { useAppDispatch, useAppSelector } from "./RTKHooks";
 import { updateTextField } from "../slice/editorSlice";
-import { TTextField, TTextPlain } from "../types/formTypes";
+import { TFormData } from "../types/formTypes";
+import { ExtractKeyValues } from "../types/formTypes";
 
 type TEditorProps = {
   formId?: string | null;
@@ -12,12 +13,35 @@ export type TEditorRegisterReturn = {
   defaultValue: HTMLAttributes<HTMLInputElement>["defaultValue"];
 };
 
-export type TFormDataAssertion = Record<string, string | string[]>;
-
 export type TFormControl = {
   formId?: string | null;
-  formData: TFormDataAssertion;
+  formData?: TFormData;
 };
+
+function getDefaultValue(
+  formData: TFormData | undefined,
+  field: ExtractKeyValues<TFormData>
+) {
+  if (!formData) return "";
+
+  switch (formData.formType) {
+    case "textField":
+      if (field !== "heading" && field !== "placeholder") break;
+      return formData[field] || "";
+    case "textPlain":
+      if (field !== "title" && field !== "subtitle") break;
+      return formData[field] || "";
+    case "textMulti":
+      if (field !== "heading") break;
+      return formData[field] || "";
+    default:
+      throw new Error(`Can't assign a value to field : ${field}`);
+  }
+}
+/*
+      | keyof Extract<TFormData, { formType: "textField" }>
+      | keyof Extract<TFormData, { formType: "textPlain" }>
+*/
 
 /**
  * Basically a remake of react hook form. We're creating our own version because we need it to be customizable. This hook is specifically designed to work with forms inside the editor property.
@@ -34,7 +58,7 @@ export function useEditor({ formId }: TEditorProps) {
   });
 
   function register(
-    fieldType: keyof TTextField | keyof TTextPlain
+    fieldType: ExtractKeyValues<TFormData>
   ): TEditorRegisterReturn {
     return {
       /*
@@ -42,6 +66,7 @@ export function useEditor({ formId }: TEditorProps) {
       */
       onChange(e) {
         if (!formId) throw new Error(`Form id for field ${fieldType} is null`);
+        if (formData?.formType === "textMulti") return;
         dispatch(
           updateTextField({ value: e.target.value, formId, field: fieldType })
         );
@@ -50,7 +75,7 @@ export function useEditor({ formId }: TEditorProps) {
       /*
       Retrieves the data on the object and treat it as the default value
       */
-      defaultValue: formData?.[fieldType],
+      defaultValue: getDefaultValue(formData, fieldType),
     };
   }
 

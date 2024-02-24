@@ -2,18 +2,32 @@ import { ChangeEventHandler, HTMLAttributes } from "react";
 import { addArrayField, updateArrayField } from "../slice/editorSlice";
 import { useAppDispatch } from "./RTKHooks";
 import { TFormControl } from "./useEditor";
-import { TMultiField } from "../types/formTypes";
+import { TFormData } from "../types/formTypes";
 
 export type TEditorRegisterFieldArrayReturn = {
   onChange: ChangeEventHandler<HTMLInputElement>;
   defaultValue: HTMLAttributes<HTMLInputElement>["defaultValue"];
 };
 
+function getDefaultValue(
+  formData: TFormData | undefined,
+  field: keyof Extract<TFormData, { formType: "textMulti" }>,
+  index: number
+) {
+  if (!formData) return "";
+
+  if (formData.formType !== "textMulti") return;
+
+  if (field !== "options") return;
+
+  return formData[field][index];
+}
+
 export function useEditorFieldArray({
   name,
   control,
 }: {
-  name: keyof TMultiField;
+  name: keyof Extract<TFormData, { formType: "textMulti" }>;
   control: TFormControl;
 }) {
   const dispatch = useAppDispatch();
@@ -33,7 +47,7 @@ export function useEditorFieldArray({
         );
       },
 
-      defaultValue: formData[name][index],
+      defaultValue: getDefaultValue(formData, name, index),
     };
   }
 

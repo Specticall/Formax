@@ -3,7 +3,8 @@ import { FormMulti } from "./FormMulti";
 import { FormTitle } from "./FormTitle";
 import { FormShort } from "./FormShort";
 import { useAppSelector } from "../../Hooks/RTKHooks";
-import { IFormData } from "../../types/formTypes";
+import { TFormData } from "../../types/formTypes";
+
 interface IProps {
   isEditing?: boolean;
 }
@@ -15,7 +16,7 @@ interface IProps {
  * @returns
  */
 
-function parseFormData(formData: IFormData, isEditing: boolean = false) {
+function parseFormData(formData: TFormData, isEditing: boolean = false) {
   switch (formData.type) {
     case "title":
       return <FormTitle {...formData} isEditing={isEditing} />;

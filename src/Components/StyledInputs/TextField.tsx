@@ -7,6 +7,7 @@ type TProps = {
   errorMessage?: string;
 
   register?: UseFormRegisterReturn<string> | object;
+  errorMessage?: string;
 
   editorRegister?: { onChange: ChangeEventHandler<HTMLElement> };
 };
@@ -45,7 +46,7 @@ export function TextField({
           placeholder={placeholder}
           {...formRegister}
           {...editorRegister}
-        />{" "}
+        />
         {errorMessage && (
           <p className="text-danger text-end text-body mt-3">{errorMessage}</p>
         )}

@@ -2,14 +2,14 @@ import IconBox from "../General/IconBox";
 import { TextField } from "../StyledInputs/TextField";
 import { FormComponentWrapper } from "./FormComponentWrapper";
 import { useTextForm } from "../../Hooks/useTextForm";
-import { RegisterOptions } from "react-hook-form";
+import { TFormRules } from "../../types/formTypes";
 
 interface IProps {
   heading: string;
   isEditing: boolean;
   placeholder?: string;
   formId: string;
-  rules: RegisterOptions;
+  rules: TFormRules;
 }
 
 /**
@@ -35,6 +35,10 @@ export function FormShort({
     name: formLabel,
     rules,
   });
+
+  const formErrors = formMethods?.formState.errors;
+
+  const formErrors = formMethods?.formState.errors;
 
   const formErrors = formMethods?.formState.errors;
   return (
