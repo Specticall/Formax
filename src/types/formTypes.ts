@@ -31,7 +31,13 @@ type TFormMulti = {
   formType: "textMulti";
 };
 
-export type IFormData = { formId: string } & (
+type TRules = "required" | "minLength" | "maxLength" | "valueAsNumber";
+
+export type TFormRules = {
+  [key in TRules]?: boolean | number;
+};
+
+export type IFormData = { formId: string; rules: TFormRules[] } & (
   | TFormTitle
   | TFormShort
   | TFormLong

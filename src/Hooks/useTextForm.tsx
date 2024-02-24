@@ -1,9 +1,14 @@
-import { UseFormRegisterReturn, useFormContext } from "react-hook-form";
+import {
+  RegisterOptions,
+  UseFormRegisterReturn,
+  useFormContext,
+} from "react-hook-form";
 import { useOperationalForm } from "../Context/OperationalFormContext";
 
 interface IProps {
   isEditing: boolean;
   name: string | undefined;
+  rules: RegisterOptions;
 }
 
 /**
@@ -17,16 +22,16 @@ interface IProps {
  *
  * @returns `formRegister` - contains functions that are returned when calling `register("label")`
  */
-export function useTextForm({ isEditing, name }: IProps) {
+export function useTextForm({ isEditing, name, rules = {} }: IProps) {
   // We don't use destructuring here because we would not be able to check if these context exist or not which can lead to runtime error
   const formValues = useOperationalForm();
-  const formMethods = useFormContext();
+  const formMethods = useFormContext() || null;
 
   const defaultValues = formValues?.defaultValues;
 
   // This will "Hook" the register function to the label name if possible
   const formRegister: UseFormRegisterReturn<string> | object =
-    formMethods && name ? formMethods.register(name) : {};
+    formMethods && name ? formMethods.register(name, rules) : {};
 
   // True when the required props for an active form are passed in.
   const canSubmit =

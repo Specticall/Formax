@@ -2,12 +2,14 @@ import IconBox from "../General/IconBox";
 import { TextField } from "../StyledInputs/TextField";
 import { FormComponentWrapper } from "./FormComponentWrapper";
 import { useTextForm } from "../../Hooks/useTextForm";
+import { RegisterOptions } from "react-hook-form";
 
 interface IProps {
   heading: string;
   isEditing: boolean;
   placeholder?: string;
   formId: string;
+  rules: RegisterOptions;
 }
 
 /**
@@ -18,6 +20,7 @@ interface IProps {
  *
  * @param placeholder - Plain thext that will be displayed as the input placeholder.
  *
+ * @param rules - Object containing react hook form rules, will be used when form is operational.
  * @param isEditing - Form state (read the comment on `<FormBuilder/>`)
  */
 export function FormShort({
@@ -25,12 +28,15 @@ export function FormShort({
   placeholder = "",
   formId: formLabel,
   isEditing = false,
+  rules,
 }: IProps) {
-  const { canSubmit, formRegister } = useTextForm({
+  const { canSubmit, formRegister, formMethods } = useTextForm({
     isEditing,
     name: formLabel,
+    rules,
   });
 
+  const formErrors = formMethods?.formState.errors;
   return (
     <FormComponentWrapper disableHover={canSubmit} formKey={formLabel}>
       <div>
@@ -44,7 +50,11 @@ export function FormShort({
           </div>
         </div>
         {canSubmit && formRegister ? (
-          <TextField placeholder={placeholder} register={formRegister} />
+          <TextField
+            placeholder={placeholder}
+            register={formRegister}
+            errorMessage={formErrors[formLabel]?.message as string}
+          />
         ) : (
           <TextField placeholder={placeholder} />
         )}

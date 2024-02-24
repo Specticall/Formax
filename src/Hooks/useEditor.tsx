@@ -31,7 +31,7 @@ export function useEditor({ formId }: TEditorProps) {
   // TEMP -> Should use an action creator for this.
   const formData = useAppSelector((state) => {
     return state.editor.formData?.find((data) => data.formId === formId);
-  }) as TFormDataAssertion;
+  });
 
   function register(
     fieldType: keyof TTextField | keyof TTextPlain
@@ -50,7 +50,7 @@ export function useEditor({ formId }: TEditorProps) {
       /*
       Retrieves the data on the object and treat it as the default value
       */
-      defaultValue: formData[fieldType] || "",
+      defaultValue: formData?.[fieldType],
     };
   }
 

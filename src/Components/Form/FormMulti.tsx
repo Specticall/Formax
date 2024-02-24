@@ -136,7 +136,7 @@ function MultiInput({
                 style={isSelected ? { borderColor: COLOR_ACCENT } : undefined}
                 onClick={handleSelect(index)}
               >
-                <p>{option}</p>
+                <p className="break-all pr-4">{option}</p>
                 {/* //// Checkbox //// */}
                 <div
                   className="w-[1.25rem] h-[1.25rem] border-[1px] border-border rounded-[.25rem] grid place-items-center transition-all"

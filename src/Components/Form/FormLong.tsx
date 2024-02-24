@@ -1,12 +1,14 @@
 import IconBox from "../General/IconBox";
 import { FormComponentWrapper } from "./FormComponentWrapper";
 import { useTextForm } from "../../Hooks/useTextForm";
+import { RegisterOptions } from "react-hook-form";
 
 interface IProps {
   heading: string;
   isEditing: boolean;
   placeholder?: string;
   formId: string;
+  rules: RegisterOptions;
 }
 
 /**
@@ -18,7 +20,7 @@ interface IProps {
  * @param placeholder - Plain thext that will be displayed as the input placeholder.
  *
  * @param isEditing - Form state (read the comment on `<FormBuilder/>`)
- *
+ *  @param rules - Object containing react hook form rules, will be used when form is operational.
  * @returns
  */
 export function FormLong({
@@ -26,10 +28,12 @@ export function FormLong({
   placeholder,
   isEditing,
   formId: formLabel,
+  rules,
 }: IProps) {
   const { formRegister } = useTextForm({
     isEditing: isEditing,
     name: formLabel,
+    rules,
   });
 
   return (

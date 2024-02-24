@@ -6,7 +6,6 @@ import {
   TTextPlain,
   TMultiField,
 } from "../types/formTypes";
-import { v4 as uuidv4 } from "uuid";
 
 export const formData: IFormData[] = [
   {
@@ -16,6 +15,7 @@ export const formData: IFormData[] = [
     formId: "ID_TITLE",
     output: "string",
     formType: "textPlain",
+    rules: [],
   },
   {
     type: "long",
@@ -24,6 +24,7 @@ export const formData: IFormData[] = [
     formId: "ID_LONG",
     output: "string",
     formType: "textField",
+    rules: [],
   },
   {
     type: "short",
@@ -32,6 +33,7 @@ export const formData: IFormData[] = [
     formId: "ID_SHORT",
     output: "string",
     formType: "textField",
+    rules: [{ required: true }],
   },
   {
     type: "multi",
@@ -41,6 +43,7 @@ export const formData: IFormData[] = [
     selected: { 1: true, 3: true },
     output: "stringArray",
     formType: "textMulti",
+    rules: [],
   },
 ];
 
@@ -149,6 +152,48 @@ const updateArrayFieldAction: CaseReducer<
   }
 };
 
+const addArrayFieldAction: CaseReducer<
+  IEditor,
+  PayloadAction<{ formId: string; field: keyof TMultiField }>
+> = (state, action) => {
+  // 1. Retrieve neccessary data from the payload
+  const { field, formId } = action.payload;
+
+  // 2. Find the index of the formData needed to be updated
+  const targetIndex = formData?.findIndex((data) => data.formId === formId);
+
+  // 3. If the target index is not found nor the form data exist, then exit.
+  if (
+    // 0 is considered false (smh javascript)
+    (!targetIndex && targetIndex !== 0) ||
+    targetIndex == -1 ||
+    !state.formData
+  ) {
+    console.log(`field not found ${formId}, ${field}`);
+    return;
+  }
+
+  // 4. Create a shallow copy of the form Data
+  // NOTE : This is required because formDataCopy is readonly.
+  const formDataCopy = { ...state.formData[targetIndex] };
+
+  const targetField = (
+    formDataCopy as {
+      [key in typeof field]: unknown;
+    }
+  )[field];
+
+  if (!Array.isArray(targetField)) return;
+
+  // If the any  element is currently empty then throw an error
+  if (targetField.some((field) => field === ""))
+    return console.log("FILL THE CURRENT ONE FIRST");
+
+  targetField.push("");
+
+  state.selectedForm = formDataCopy;
+};
+
 const initialState: IEditor = {
   selectedForm: null,
   formData,
@@ -170,36 +215,8 @@ const editorReducer = createSlice({
     // Similar to the function above the main difference that this one handles change an an array instead of a string.
     updateArrayField: updateArrayFieldAction,
 
-    addArrayField(
-      state,
-      action: PayloadAction<{ formId: string; field: string }>
-    ) {
-      // 1. Retrieve neccessary data from the payload
-      const { formId, field } = action.payload;
-
-      // 2. Find the index of the formData needed to be updated
-      const targetIndex = formData?.findIndex((data) => data.formId === formId);
-
-      // 3. If the target index is not found nor the form data exist, then exit.
-      if (
-        // 0 is considered false (smh javascript)
-        (!targetIndex && targetIndex !== 0) ||
-        targetIndex == -1 ||
-        !state.formData
-      ) {
-        console.log(`field not found ${formId}, ${field}`);
-        return;
-      }
-
-      // // 4. Create a shallow copy of the form Data
-      // // NOTE : This is required because formDataCopy is readonly.
-
-      // if (formDataCopy.output === "stringArray" && formDataCopy["selected"]) {
-      // }
-
-      // console.log(formDataCopy[field] as unknown[]);
-      // state.formData[targetIndex] = [...formDataCopy, newField];
-    },
+    // append a new element to the most recent array element.
+    addArrayField: addArrayFieldAction,
   },
 });
 

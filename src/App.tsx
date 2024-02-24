@@ -1,6 +1,7 @@
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import EditorLayout from "./Pages/EditorLayout";
 import Preview from "./Pages/Preview";
+import Zod from "./Zod/Zod";
 
 const router = createBrowserRouter([
   {
@@ -14,5 +15,6 @@ const router = createBrowserRouter([
 ]);
 
 export default function App() {
-  return <RouterProvider router={router} />;
+  // return <RouterProvider router={router} />;
+  return <Zod />;
 }

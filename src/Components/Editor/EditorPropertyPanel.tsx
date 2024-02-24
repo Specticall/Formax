@@ -1,4 +1,4 @@
-import { FormOptions } from "./FormOptions";
+import { FormOptionCard, FormOptions } from "./FormOptions";
 import IconBox from "../General/IconBox";
 import { TextField } from "../StyledInputs/TextField";
 import { ExtractType } from "../../helper/helper";
@@ -7,6 +7,7 @@ import { useAppSelector } from "../../Hooks/RTKHooks";
 import { useEditor } from "../../Hooks/useEditor";
 import Button from "../General/Button";
 import { useEditorFieldArray } from "../../Hooks/useEditorFieldArray";
+import { PropertyFormTitle } from "./PropertyFormTitle";
 
 type TFormTypes = ExtractType<IFormData> | "none";
 
@@ -40,34 +41,6 @@ export function EditorPropertyPanel() {
     <aside className="fixed h-[calc(100vh-4rem)] w-[25rem] bg-main-100 border-l-[1px] right-0 border-border overflow-y-auto top-[4rem]">
       {getPropertyComponentFrom(selectedFormType)}
     </aside>
-  );
-}
-function PropertyFormTitle() {
-  const selectedForm = useAppSelector((state) => state.editor.selectedForm);
-
-  const { register } = useEditor({ formId: selectedForm?.formId });
-
-  return (
-    <>
-      <header className="flex text-main-400 text-body items-center gap-3 border-b-[1px] border-border px-6 py-5">
-        <IconBox>
-          <i className="bx bx-detail"></i>
-        </IconBox>
-        <h2>Title</h2>
-      </header>
-      <div className="flex flex-col gap-4 px-6 pt-6 pb-8 border-b-[1px] border-border">
-        <TextField
-          label="Title"
-          placeholder="Your title"
-          editorRegister={register("title")}
-        />
-        <TextField
-          label="Subtitle"
-          placeholder={"Your Subtitle"}
-          editorRegister={register("subtitle")}
-        />
-      </div>
-    </>
   );
 }
 function PropertyFormShort() {
@@ -122,7 +95,15 @@ function PropertyFormLong() {
           editorRegister={register("placeholder")}
         />
       </div>
-      <FormOptions />
+      <article className="p-6">
+        <h2 className="text-main-400 mb-5">Rules</h2>
+        <div className="grid gap-2">
+          <FormOptionCard
+            option="Required"
+            description="This option requires the user to fill the form before submitting"
+          />
+        </div>
+      </article>
     </>
   );
 }
@@ -137,6 +118,8 @@ function PropertyFormMulti() {
     name: "options",
     control,
   });
+
+  // console.log(selectedForm?.type === "multi" ? selectedForm.options : "ERR");
 
   return (
     <>
@@ -155,9 +138,10 @@ function PropertyFormMulti() {
         <p className="text-body text-main-400 mt-4">Options</p>
         {/* //// Option Field Arrat ///// */}
         {selectedForm?.type === "multi" &&
-          selectedForm.options.map((_, index) => {
+          selectedForm.options.map((option, index) => {
             return (
               <TextField
+                key={`${option}-${index}`}
                 placeholder="Your Options"
                 editorRegister={registerFieldArray(index)}
               />

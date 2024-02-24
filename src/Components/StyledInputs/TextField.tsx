@@ -1,9 +1,11 @@
-import { UseFormRegisterReturn } from "react-hook-form";
+import { FieldErrors, UseFormRegisterReturn } from "react-hook-form";
 import { ChangeEventHandler } from "react";
 
 type TProps = {
   label?: string;
   placeholder: string;
+  errorMessage?: string;
+
   register?: UseFormRegisterReturn<string> | object;
 
   editorRegister?: { onChange: ChangeEventHandler<HTMLElement> };
@@ -26,19 +28,28 @@ export function TextField({
   placeholder,
   register,
   editorRegister,
+  errorMessage,
 }: TProps) {
   const formRegister = register ? register : {};
   return (
     <div className="grid gap-2">
       {/* Only render label if provided by the user */}
       {label && <label className="text-main-400 text-body mb-1">{label}</label>}
-      <input
-        type="text"
-        className="bg-main-0 rounded-md border-[1px] border-border text-body px-5 py-3 placeholder:text-main-200 text-main-400"
-        placeholder={placeholder}
-        {...formRegister}
-        {...editorRegister}
-      />
+      <div className="w-full">
+        <input
+          type="text"
+          className="bg-main-0 rounded-md border-[1px] border-border text-body px-5 py-3 placeholder:text-main-200 text-main-400 break-all w-full"
+          style={{
+            borderColor: errorMessage ? "rgb(255, 85, 146)" : "rgb(49, 49, 49)",
+          }}
+          placeholder={placeholder}
+          {...formRegister}
+          {...editorRegister}
+        />{" "}
+        {errorMessage && (
+          <p className="text-danger text-end text-body mt-3">{errorMessage}</p>
+        )}
+      </div>
     </div>
   );
 }
