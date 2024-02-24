@@ -61,3 +61,19 @@ export default function App() {
 
   return <RouterProvider router={router} />;
 }
+
+// const formTest = {
+//   type: "multi",
+//   heading: "Which of these traits best describe you?",
+//   options: ["A. Moody", "B. Expressive", "C. Calm and Collected"],
+//   formId: "ID_MULTI",
+//   selected: { 1: true, 3: true },
+//   formType: "textMulti",
+//   rules: {},
+// };
+
+// type ExtractStringTypes<T> = {
+//   [K in keyof T]: T[K] extends string ? K : never;
+// }[keyof T];
+
+// type Test = ExtractStringTypes<typeof formTest>;

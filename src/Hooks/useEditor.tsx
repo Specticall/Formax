@@ -1,8 +1,14 @@
 import { ChangeEventHandler, HTMLAttributes } from "react";
 import { useAppDispatch, useAppSelector } from "./RTKHooks";
 import { updateFormRule, updateTextField } from "../slice/editorSlice";
-import { TFormData, TFormRules } from "../types/formTypes";
-import { ExtractKeyValues } from "../types/formTypes";
+import {
+  TFormData,
+  TFormDataMerged,
+  TFormMulti,
+  TFormPlainText,
+  TFormRules,
+  TFormTextField,
+} from "../types/formTypes";
 
 type TEditorProps = {
   formId?: string | null;
@@ -18,30 +24,52 @@ export type TFormControl = {
   formData?: TFormData;
 };
 
+/**This types will take an object then return a union of all the key value that has the type string in it.
+
+const object = { a : 12, b : true, c : "hello", d: "world" }
+
+1. Create a new object tyle 
+-> { [K in keyof T]: T[K] }
+  = { a : 12, b : true, c : "hello", d: "world" }
+  
+2. Checks if the value of the object is string, if no return `never`
+-> { [K in keyof T]: T[K] extends string ? "success" : never }
+  = { a : never, b : never, c : "success", d : "success" }
+  
+3. If succeed then we take the key value itself then assign it to the value
+-> { [K in keyof T]: T[K] extends string ? K : never }
+  = { a : never, b : never, c : "c", d : "d" }
+
+4. Lastly, we then create a value union of all the types created. Never is excluded because the never type treats the type as if it does not exist.
+-> { [K in keyof T]: T[K] extends string ? K : never }[keyof T]
+  = "c" | "d"
+ */
+type ExtractStringOnlyFrom<T> = {
+  [K in keyof T]: T[K] extends string ? K : never;
+}[keyof T];
+
 function getDefaultValue(
-  formData: TFormData | undefined,
-  field: ExtractKeyValues<TFormData>
+  field: NonNullable<ExtractStringOnlyFrom<TFormDataMerged>>,
+  formData: TFormData | undefined
 ) {
   if (!formData) return "";
 
-  switch (formData.formType) {
-    case "textField":
-      if (field !== "heading" && field !== "placeholder") break;
-      return formData[field] || "";
-    case "textPlain":
-      if (field !== "title" && field !== "subtitle") break;
-      return formData[field] || "";
-    case "textMulti":
-      if (field !== "heading") break;
-      return formData[field] || "";
-    default:
-      throw new Error(`Can't assign a value to field : ${field}`);
-  }
+  return formData[field];
+
+  // switch (formData.formType) {
+  //   case "textField":
+  //     if (field !== "heading" && field !== "placeholder") break;
+  //     return formData[field] || "";
+  //   case "textPlain":
+  //     if (field !== "title" && field !== "subtitle") break;
+  //     return formData[field] || "";
+  //   case "textMulti":
+  //     if (field !== "heading") break;
+  //     return formData[field] || "";
+  //   default:
+  //     throw new Error(`Can't assign a value to field : ${field}`);
+  // }
 }
-/*
-      | keyof Extract<TFormData, { formType: "textField" }>
-      | keyof Extract<TFormData, { formType: "textPlain" }>
-*/
 
 /**
  * Basically a remake of react hook form. We're creating our own version because we need it to be customizable. This hook is specifically designed to work with forms inside the editor property.
@@ -57,16 +85,15 @@ export function useEditor({ formId }: TEditorProps) {
     return state.editor.formData?.find((data) => data.formId === formId);
   });
 
-  function register(
-    fieldType: ExtractKeyValues<TFormData>
-  ): TEditorRegisterReturn {
+  function register<
+    T extends NonNullable<ExtractStringOnlyFrom<TFormDataMerged>>
+  >(fieldType: T): TEditorRegisterReturn {
     return {
       /*
       Returns an onChange listener that updates the editor store everytime the user changes the input field
       */
       onChange(e) {
         if (!formId) throw new Error(`Form id for field ${fieldType} is null`);
-        if (formData?.formType === "textMulti") return;
         dispatch(
           updateTextField({ value: e.target.value, formId, field: fieldType })
         );
@@ -75,6 +102,7 @@ export function useEditor({ formId }: TEditorProps) {
       /*
       Retrieves the data on the object and treat it as the default value
       */
+      // Only allow formData fields with the value of string to be extracted
       defaultValue: getDefaultValue(formData, fieldType),
     };
   }
@@ -105,3 +133,26 @@ export function useEditor({ formId }: TEditorProps) {
 
   return { register, control, registerRule };
 }
+const a = {
+  type: "long",
+  heading: "Tell us your experiences!",
+  placeholder: "I'm familiar with many technologies such as...",
+  formId: "ID_LONG",
+  formType: "textField",
+  rules: { required: true, minLength: 10 },
+};
+
+const b = {
+  type: "short",
+  heading: "What's your name",
+  placeholder: "Joseph Yusmita",
+  formId: "ID_SHORT",
+  formType: "textField",
+  rules: {},
+};
+
+type combine = typeof a | typeof b;
+
+type MergedType<T> = T extends infer U ? { [K in keyof U]: U[K] } : never;
+
+type test = MergedType<combine>;

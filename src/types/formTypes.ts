@@ -8,7 +8,7 @@ export type TFormRules = {
   valueAsNumber?: boolean;
 };
 
-type TFormTextField = {
+export type TFormTextField = {
   type: "short" | "long";
   heading: string;
   placeholder?: string;
@@ -17,7 +17,7 @@ type TFormTextField = {
   rules: TFormRules;
 };
 
-type TFormPlainText = {
+export type TFormPlainText = {
   type: "title";
   title: string;
   subtitle: string;
@@ -26,7 +26,7 @@ type TFormPlainText = {
   rules: TFormRules;
 };
 
-type TFormMulti = {
+export type TFormMulti = {
   type: "multi";
   heading: string;
   options: string[];
@@ -36,7 +36,21 @@ type TFormMulti = {
   rules: TFormRules;
 };
 
+type RemoveFieldsFrom<T, Field> = {
+  [K in keyof T]: K extends Field ? never : T[K];
+};
+
+type TFormDuplicateKeys = "rules" | "type" | "formType" | "formId";
+
+export type TFormDataMerged = RemoveFieldsFrom<TFormMulti, TFormDuplicateKeys> &
+  RemoveFieldsFrom<TFormTextField, TFormDuplicateKeys> &
+  RemoveFieldsFrom<TFormPlainText, TFormDuplicateKeys>;
+
 export type TFormData = TFormMulti | TFormTextField | TFormPlainText;
+
+// export type TFormDataMerged = RemoveFieldsFrom<TFormMulti
+
+// export type TFormDataMerge =
 /*
 This type represent the form field data type usually passed in to react hook form's `useForm()` however since not creating the forms manually the type has be made this way.
 
