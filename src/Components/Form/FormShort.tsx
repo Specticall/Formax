@@ -53,7 +53,7 @@ export function FormShort({
           <TextField
             placeholder={placeholder}
             register={formRegister}
-            errorMessage={formErrors[formLabel]?.message as string}
+            errorMessage={formErrors?.[formLabel]?.message as string}
           />
         ) : (
           <TextField placeholder={placeholder} />
