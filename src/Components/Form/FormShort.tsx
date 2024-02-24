@@ -38,9 +38,6 @@ export function FormShort({
 
   const formErrors = formMethods?.formState.errors;
 
-  const formErrors = formMethods?.formState.errors;
-
-  const formErrors = formMethods?.formState.errors;
   return (
     <FormComponentWrapper disableHover={canSubmit} formKey={formLabel}>
       <div>

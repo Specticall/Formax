@@ -18,7 +18,7 @@ type TFormTextField = {
 };
 
 type TFormPlainText = {
-  type: "title" | "long";
+  type: "title";
   title: string;
   subtitle: string;
   formType: "textPlain";

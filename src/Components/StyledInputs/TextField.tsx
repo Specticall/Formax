@@ -1,4 +1,4 @@
-import { FieldErrors, UseFormRegisterReturn } from "react-hook-form";
+import { UseFormRegisterReturn } from "react-hook-form";
 import { ChangeEventHandler } from "react";
 
 type TProps = {
@@ -7,7 +7,6 @@ type TProps = {
   errorMessage?: string;
 
   register?: UseFormRegisterReturn<string> | object;
-  errorMessage?: string;
 
   editorRegister?: { onChange: ChangeEventHandler<HTMLElement> };
 };

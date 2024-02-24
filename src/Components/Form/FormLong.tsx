@@ -27,7 +27,6 @@ export function FormLong({
   heading,
   placeholder,
   isEditing,
-  rules,
   formId: formLabel,
   rules,
 }: IProps) {

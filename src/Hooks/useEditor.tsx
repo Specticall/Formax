@@ -1,7 +1,7 @@
 import { ChangeEventHandler, HTMLAttributes } from "react";
 import { useAppDispatch, useAppSelector } from "./RTKHooks";
-import { updateTextField } from "../slice/editorSlice";
-import { TFormData } from "../types/formTypes";
+import { updateFormRule, updateTextField } from "../slice/editorSlice";
+import { TFormData, TFormRules } from "../types/formTypes";
 import { ExtractKeyValues } from "../types/formTypes";
 
 type TEditorProps = {
@@ -79,10 +79,29 @@ export function useEditor({ formId }: TEditorProps) {
     };
   }
 
+  /*
+  IMPORTANT : We can infer types from the passed in variable.
+  */
+  function registerRule<T extends keyof TFormRules>(ruleName: T) {
+    return {
+      onSelect(value: TFormRules[T]) {
+        if (!formId) return;
+        dispatch(
+          updateFormRule({
+            formId,
+            rule: { [ruleName]: value },
+          })
+        );
+      },
+
+      defaultValue: formData?.rules[ruleName] || false,
+    };
+  }
+
   /**
    * Similar to react hook form's control. Allows other editor hooks to have the same data as useEditor e.g. formId
    */
   const control: TFormControl = { formId, formData };
 
-  return { register, control };
+  return { register, control, registerRule };
 }

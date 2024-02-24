@@ -70,14 +70,14 @@ function getFormRules(rules: TFormRules) {
         };
         break;
       case "minLength":
-        if (typeof ruleValue !== "string") return;
+        if (typeof ruleValue !== "number") return;
         reactHookFormDefaultValues[ruleName] = {
           value: ruleValue,
           message: `Filed must have atleast ${ruleValue} characters!`,
         };
         break;
       case "maxLength":
-        if (typeof ruleValue !== "string") return;
+        if (typeof ruleValue !== "number") return;
         reactHookFormDefaultValues[ruleName] = {
           value: ruleValue,
           message: `Filed can't have more than ${ruleValue} characters`,

@@ -1,7 +1,6 @@
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import EditorLayout from "./Pages/EditorLayout";
 import Preview from "./Pages/Preview";
-import Zod from "./Zod/Zod";
 import { useEffect } from "react";
 import { useAppDispatch } from "./Hooks/RTKHooks";
 import { loadFormData } from "./slice/editorSlice";
@@ -22,7 +21,7 @@ export const formData: TFormData[] = [
     placeholder: "I'm familiar with many technologies such as...",
     formId: "ID_LONG",
     formType: "textField",
-    rules: { required: true },
+    rules: { required: true, minLength: 10 },
   },
   {
     type: "short",
@@ -30,7 +29,7 @@ export const formData: TFormData[] = [
     placeholder: "Joseph Yusmita",
     formId: "ID_SHORT",
     formType: "textField",
-    rules: { required: true },
+    rules: {},
   },
   {
     type: "multi",
