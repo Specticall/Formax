@@ -21,7 +21,7 @@ export const formData: TFormData[] = [
     placeholder: "I'm familiar with many technologies such as...",
     formId: "ID_LONG",
     formType: "textField",
-    rules: {},
+    rules: { required: true },
   },
   {
     type: "short",

@@ -45,7 +45,12 @@ export function useTextForm({ isEditing, name, rules }: IProps) {
     !isEditing &&
     JSON.stringify(formRegister) !== "{}";
 
-  return { formMethods, defaultValues, canSubmit, formRegister };
+  return {
+    formMethods: !formMethods ? undefined : formMethods,
+    defaultValues,
+    canSubmit,
+    formRegister,
+  };
 }
 
 function getFormRules(rules: TFormRules) {

@@ -29,11 +29,13 @@ export function FormShort({
   isEditing = false,
   rules,
 }: IProps) {
-  const { canSubmit, formRegister } = useTextForm({
+  const { canSubmit, formRegister, formMethods } = useTextForm({
     isEditing,
     name: formLabel,
     rules,
   });
+
+  const formErrors = formMethods?.formState.errors;
 
   return (
     <FormComponentWrapper disableHover={canSubmit} formKey={formLabel}>
@@ -48,7 +50,11 @@ export function FormShort({
           </div>
         </div>
         {canSubmit && formRegister ? (
-          <TextField placeholder={placeholder} register={formRegister} />
+          <TextField
+            placeholder={placeholder}
+            register={formRegister}
+            errorMessage={formErrors[formLabel]?.message as string}
+          />
         ) : (
           <TextField placeholder={placeholder} />
         )}
