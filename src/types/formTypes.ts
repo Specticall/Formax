@@ -63,3 +63,27 @@ export type ExtractKeyValues<T> = T extends { [K: string]: unknown }
   : never;
 
 // TestSchema.get``
+
+/**This types will take an object then return a union of all the key value that has the type string in it.
+
+const object = { a : 12, b : true, c : "hello", d: "world" }
+
+1. Create a new object tyle 
+-> { [K in keyof T]: T[K] }
+  = { a : 12, b : true, c : "hello", d: "world" }
+  
+2. Checks if the value of the object is string, if no return `never`
+-> { [K in keyof T]: T[K] extends string ? "success" : never }
+  = { a : never, b : never, c : "success", d : "success" }
+  
+3. If succeed then we take the key value itself then assign it to the value
+-> { [K in keyof T]: T[K] extends string ? K : never }
+  = { a : never, b : never, c : "c", d : "d" }
+
+4. Lastly, we then create a value union of all the types created. Never is excluded because the never type treats the type as if it does not exist.
+-> { [K in keyof T]: T[K] extends string ? K : never }[keyof T]
+  = "c" | "d"
+ */
+export type ExtractStringOnlyFrom<T> = {
+  [K in keyof T]: T[K] extends string ? K : never;
+}[keyof T];
