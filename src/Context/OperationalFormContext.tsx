@@ -1,5 +1,5 @@
 import { ReactNode, createContext, useContext } from "react";
-import { TFormFields } from "../Pages/Preview";
+import { TFormFields } from "../types/formTypes";
 
 interface IOperationalFormContext {
   defaultValues: TFormFields;

@@ -2,12 +2,14 @@ import IconBox from "../General/IconBox";
 import { TextField } from "../StyledInputs/TextField";
 import { FormComponentWrapper } from "./FormComponentWrapper";
 import { useTextForm } from "../../Hooks/useTextForm";
+import { TFormRules } from "../../types/formTypes";
 
 interface IProps {
   heading: string;
   isEditing: boolean;
   placeholder?: string;
   formId: string;
+  rules: TFormRules;
 }
 
 /**
@@ -25,10 +27,12 @@ export function FormShort({
   placeholder = "",
   formId: formLabel,
   isEditing = false,
+  rules,
 }: IProps) {
   const { canSubmit, formRegister } = useTextForm({
     isEditing,
     name: formLabel,
+    rules,
   });
 
   return (

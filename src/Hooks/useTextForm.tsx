@@ -1,9 +1,15 @@
-import { UseFormRegisterReturn, useFormContext } from "react-hook-form";
+import {
+  RegisterOptions,
+  UseFormRegisterReturn,
+  useFormContext,
+} from "react-hook-form";
 import { useOperationalForm } from "../Context/OperationalFormContext";
+import { TFormRules } from "../types/formTypes";
 
 interface IProps {
   isEditing: boolean;
   name: string | undefined;
+  rules: TFormRules;
 }
 
 /**
@@ -17,16 +23,20 @@ interface IProps {
  *
  * @returns `formRegister` - contains functions that are returned when calling `register("label")`
  */
-export function useTextForm({ isEditing, name }: IProps) {
+export function useTextForm({ isEditing, name, rules }: IProps) {
   // We don't use destructuring here because we would not be able to check if these context exist or not which can lead to runtime error
   const formValues = useOperationalForm();
   const formMethods = useFormContext();
 
+  // Passed in react hook form so it can infer the correc types
   const defaultValues = formValues?.defaultValues;
+
+  // Memoise the rules object to only recalculate every time rule changes.
+  const formRules = getFormRules(rules);
 
   // This will "Hook" the register function to the label name if possible
   const formRegister: UseFormRegisterReturn<string> | object =
-    formMethods && name ? formMethods.register(name) : {};
+    formMethods && name ? formMethods.register(name, formRules) : {};
 
   // True when the required props for an active form are passed in.
   const canSubmit =
@@ -36,4 +46,42 @@ export function useTextForm({ isEditing, name }: IProps) {
     JSON.stringify(formRegister) !== "{}";
 
   return { formMethods, defaultValues, canSubmit, formRegister };
+}
+
+function getFormRules(rules: TFormRules) {
+  if (!rules || JSON.stringify(rules) === "{}") return;
+
+  const reactHookFormDefaultValues: RegisterOptions = {};
+
+  Object.entries(rules).forEach((rule) => {
+    const [ruleName, ruleValue] = rule;
+
+    switch (ruleName) {
+      case "required":
+        if (typeof ruleValue !== "boolean") return;
+        reactHookFormDefaultValues[ruleName] = {
+          value: ruleValue,
+          message: "Field can't be empty",
+        };
+        break;
+      case "minLength":
+        if (typeof ruleValue !== "string") return;
+        reactHookFormDefaultValues[ruleName] = {
+          value: ruleValue,
+          message: `Filed must have atleast ${ruleValue} characters!`,
+        };
+        break;
+      case "maxLength":
+        if (typeof ruleValue !== "string") return;
+        reactHookFormDefaultValues[ruleName] = {
+          value: ruleValue,
+          message: `Filed can't have more than ${ruleValue} characters`,
+        };
+        break;
+      case "valueAsNumber":
+        throw new Error("Value as number is still WIP");
+    }
+  });
+
+  return reactHookFormDefaultValues;
 }
