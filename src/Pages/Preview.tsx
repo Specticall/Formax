@@ -4,6 +4,7 @@ import Button from "../Components/General/Button";
 import { OperationalFormProvider } from "../Context/OperationalFormContext";
 import { useAppSelector } from "../Hooks/RTKHooks";
 import { createDefaultValues } from "../helper/helper";
+import { TFormMulti } from "../types/formTypes";
 
 export default function Preview() {
   const formData = useAppSelector((state) => state.editor.formData);
@@ -15,6 +16,13 @@ export default function Preview() {
   });
 
   const onSubmit: SubmitHandler<typeof defaultValues> = (value) => {
+    // Handle multi form errors:
+
+    // Checks if every .selected has a value inside the object, if not then it should error
+    // if (value) {
+    //   console.log("MULTI FORM ERROR");
+    //   return;
+    // }
     console.log(value);
   };
 

@@ -2,11 +2,23 @@ import { CSSProperties, useEffect, useState } from "react";
 import IconBox from "../General/IconBox";
 import { FormComponentWrapper } from "./FormComponentWrapper";
 import { COLOR_ACCENT } from "../../helper/helper";
-import { Controller } from "react-hook-form";
+import { Controller, useFormContext } from "react-hook-form";
+import { useAppSelector } from "../../Hooks/RTKHooks";
 
 const selectedStyle: CSSProperties = {
   background: "white",
   color: "black",
+};
+
+const stateStyles = {
+  error(errorMessage: string) {
+    return {
+      borderColor: errorMessage ? "rgb(255, 85, 146)" : "rgb(49, 49, 49)",
+    };
+  },
+  selected(isSelected: boolean) {
+    return { borderColor: isSelected ? COLOR_ACCENT : "rgb(49, 49, 49)" };
+  },
 };
 
 type ISelected = Record<string, boolean>;
@@ -20,6 +32,7 @@ interface IProps {
   heading: string;
   isEditing: boolean;
   formId: string;
+  errorMessage?: string;
 }
 
 /**
@@ -40,11 +53,44 @@ interface IProps {
  * @returns
  */
 export function FormMulti(props: IProps) {
+  // DON NOT USE DESTRUCTURING, it will cause a run-time error when we're calling this component outside the FormProvider. (Which we do on edit mode.)
+  const formMethods = useFormContext();
+
+  const formData = useAppSelector((state) => state.editor.formData);
+  const formRules = formData.find(
+    (data) => data.formId === props.formId
+  )?.rules;
+
+  // Will ensure that the required validation method does not runs when the component first mounts AKA page load. (validate for some reason runs on mount)
+  const [hasAlreadyRendered, setHasAlreadyRendered] = useState(false);
+  useEffect(() => {
+    setHasAlreadyRendered(true);
+  }, []);
+
   return !props.isEditing ? (
     <Controller
       name={props.formId}
+      rules={{
+        // The vanilla required option does not seem to work so we have to use this workaround.
+        validate: {
+          value: (val) => {
+            // Disable the validation function if requireed is false.
+            if (!formRules?.required || !hasAlreadyRendered) return true;
+            return JSON.stringify(val) !== "{}" || "Field can't be empty";
+          },
+        },
+      }}
+      control={formMethods.control}
       render={({ field: { onChange } }) => {
-        return <MultiInput onSelect={onChange} {...props} />;
+        return (
+          <MultiInput
+            onSelect={onChange}
+            {...props}
+            errorMessage={
+              formMethods?.formState?.errors?.[props.formId]?.message as string
+            }
+          />
+        );
       }}
     />
   ) : (
@@ -60,6 +106,7 @@ function MultiInput({
   heading,
   isEditing,
   formId,
+  errorMessage,
 }: IProps) {
   /*
   [NOTE]
@@ -108,7 +155,7 @@ function MultiInput({
   // Trigger the callback function everytime "selected"s value updates
   useEffect(() => {
     onSelect(selected);
-  }, [selected, onSelect]);
+  }, [selected]);
 
   return (
     <FormComponentWrapper disableHover={!isEditing} formKey={formId}>
@@ -133,8 +180,13 @@ function MultiInput({
               <li
                 key={`option-${index}`}
                 className="w-full px-6 py-3 bg-main-100 border-[1px] border-border rounded-md text-main-400 text-body flex items-center justify-between cursor-pointer transition-all"
-                style={isSelected ? { borderColor: COLOR_ACCENT } : undefined}
                 onClick={handleSelect(index)}
+                // Different border styles for error and for selection which each also has their own states.
+                style={
+                  errorMessage
+                    ? stateStyles["error"](errorMessage)
+                    : stateStyles["selected"](isSelected)
+                }
               >
                 <p className="break-all pr-4">{option}</p>
                 {/* //// Checkbox //// */}
@@ -148,6 +200,9 @@ function MultiInput({
             );
           })}
         </ul>
+        {errorMessage && (
+          <p className="text-danger text-end mt-3">{errorMessage}</p>
+        )}
       </div>
     </FormComponentWrapper>
   );

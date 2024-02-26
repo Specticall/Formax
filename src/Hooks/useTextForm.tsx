@@ -1,10 +1,7 @@
-import {
-  RegisterOptions,
-  UseFormRegisterReturn,
-  useFormContext,
-} from "react-hook-form";
+import { UseFormRegisterReturn, useFormContext } from "react-hook-form";
 import { useOperationalForm } from "../Context/OperationalFormContext";
 import { TFormRules } from "../types/formTypes";
+import { getFormRules } from "../helper/helper";
 
 interface IProps {
   isEditing: boolean;
@@ -51,42 +48,4 @@ export function useTextForm({ isEditing, name, rules }: IProps) {
     canSubmit,
     formRegister,
   };
-}
-
-function getFormRules(rules: TFormRules) {
-  if (!rules || JSON.stringify(rules) === "{}") return;
-
-  const reactHookFormDefaultValues: RegisterOptions = {};
-
-  Object.entries(rules).forEach((rule) => {
-    const [ruleName, ruleValue] = rule;
-
-    switch (ruleName) {
-      case "required":
-        if (typeof ruleValue !== "boolean") return;
-        reactHookFormDefaultValues[ruleName] = {
-          value: ruleValue,
-          message: "Field can't be empty",
-        };
-        break;
-      case "minLength":
-        if (typeof ruleValue !== "number") return;
-        reactHookFormDefaultValues[ruleName] = {
-          value: ruleValue,
-          message: `Filed must have atleast ${ruleValue} characters!`,
-        };
-        break;
-      case "maxLength":
-        if (typeof ruleValue !== "number") return;
-        reactHookFormDefaultValues[ruleName] = {
-          value: ruleValue,
-          message: `Filed can't have more than ${ruleValue} characters`,
-        };
-        break;
-      case "valueAsNumber":
-        throw new Error("Value as number is still WIP");
-    }
-  });
-
-  return reactHookFormDefaultValues;
 }

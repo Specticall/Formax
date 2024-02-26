@@ -1,6 +1,5 @@
 import { CaseReducer, PayloadAction, createSlice } from "@reduxjs/toolkit";
 import { ExtractKeyValues, TFormData, TFormRules } from "../types/formTypes";
-import { unknown } from "zod";
 
 const selectFormAction: CaseReducer<TEditor, PayloadAction<string>> = (
   state,

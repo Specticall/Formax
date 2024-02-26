@@ -8,7 +8,7 @@ export type TFormRules = {
   valueAsNumber?: boolean;
 };
 
-type TFormTextField = {
+export type TFormTextField = {
   type: "short" | "long";
   heading: string;
   placeholder?: string;
@@ -17,7 +17,7 @@ type TFormTextField = {
   rules: TFormRules;
 };
 
-type TFormPlainText = {
+export type TFormPlainText = {
   type: "title";
   title: string;
   subtitle: string;
@@ -26,7 +26,7 @@ type TFormPlainText = {
   rules: TFormRules;
 };
 
-type TFormMulti = {
+export type TFormMulti = {
   type: "multi";
   heading: string;
   options: string[];

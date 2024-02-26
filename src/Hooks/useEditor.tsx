@@ -89,12 +89,17 @@ export function useEditor({ formId }: TEditorProps) {
         dispatch(
           updateFormRule({
             formId,
+            /*
+            Use count if it exist, if it does not then use value. 
+            This is because for minLength and maxLength, count is treated as a value
+            e.g. `minLength : 10` is equivalent to `required: true`
+            */
             rule: { [ruleName]: value },
           })
         );
       },
 
-      defaultValue: formData?.rules[ruleName] || false,
+      defaultValue: formData?.rules[ruleName] ?? false,
     };
   }
 
