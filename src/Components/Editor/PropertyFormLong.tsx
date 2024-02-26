@@ -45,12 +45,6 @@ export function PropertyFormLong() {
             {...registerRule("minLength")}
             enableCount
           />
-          <FormOptionCard
-            option="Maximum Length"
-            description="This option requires the user to fill the form the form using with a specified maximum amount of characters"
-            {...registerRule("maxLength")}
-            enableCount
-          />
         </div>
       </article>
     </>

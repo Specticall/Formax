@@ -1,5 +1,9 @@
 import { ChangeEventHandler, HTMLAttributes } from "react";
-import { addArrayField, updateArrayField } from "../slice/editorSlice";
+import {
+  addArrayField,
+  deleteArrayField,
+  updateArrayField,
+} from "../slice/editorSlice";
 import { useAppDispatch } from "./RTKHooks";
 import { TFormControl } from "./useEditor";
 import { TFormData } from "../types/formTypes";
@@ -56,5 +60,10 @@ export function useEditorFieldArray({
     dispatch(addArrayField({ formId, field: name }));
   }
 
-  return { registerFieldArray, handleAppend };
+  function handleDelete(index: number) {
+    if (!formId) return;
+    return () => dispatch(deleteArrayField({ formId, index }));
+  }
+
+  return { registerFieldArray, handleAppend, handleDelete };
 }

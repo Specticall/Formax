@@ -10,6 +10,7 @@ import { PropertyFormTitle } from "./PropertyFormTitle";
 import { TFormData } from "../../types/formTypes";
 import { PropertyFormShort } from "./PropertyFormShort";
 import { PropertyFormLong } from "./PropertyFormLong";
+import { useLayoutEffect } from "react";
 
 type TFormTypes = ExtractType<TFormData> | "none";
 
@@ -52,10 +53,25 @@ function PropertyFormMulti() {
   const { register, control, registerRule } = useEditor({
     formId: selectedForm?.formId,
   });
-  const { registerFieldArray, handleAppend } = useEditorFieldArray({
-    name: "options",
-    control,
-  });
+  const { registerFieldArray, handleAppend, handleDelete } =
+    useEditorFieldArray({
+      name: "options",
+      control,
+    });
+
+  // Deletes any empty inputs on unmount (switching to other forms)
+  useLayoutEffect(() => {
+    return () => {
+      if (!selectedForm?.formId) return;
+      const optionInputList = document.querySelectorAll(".option-input");
+      optionInputList.forEach((option, index) => {
+        const deleteItem = handleDelete(index);
+
+        if ((option as HTMLInputElement).value === "" && deleteItem)
+          deleteItem();
+      });
+    };
+  }, [selectedForm?.formId]);
 
   return (
     <>
@@ -76,11 +92,18 @@ function PropertyFormMulti() {
         {selectedForm?.type === "multi" &&
           selectedForm.options.map((option, index) => {
             return (
-              <TextField
-                key={`${option}-${index}`}
-                placeholder="Your Options"
-                editorRegister={registerFieldArray(index)}
-              />
+              <div className="relative">
+                <TextField
+                  key={`${option}-${index}`}
+                  placeholder="Your Options"
+                  editorRegister={registerFieldArray(index)}
+                  className={`pr-12 option-${index} option-input`}
+                />
+                <i
+                  className="bx bx-x absolute top-[50%] right-4 translate-y-[-50%] text-main-300 text-title hover:text-danger cursor-pointer"
+                  onClick={handleDelete(index)}
+                ></i>
+              </div>
             );
           })}
         <Button

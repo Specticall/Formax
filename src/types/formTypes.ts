@@ -87,3 +87,6 @@ const object = { a : 12, b : true, c : "hello", d: "world" }
 export type ExtractStringOnlyFrom<T> = {
   [K in keyof T]: T[K] extends string ? K : never;
 }[keyof T];
+
+// eslint-disable-next-line
+export type TODO = any;

@@ -148,6 +148,79 @@ const addArrayFieldAction: CaseReducer<
   state.selectedForm = state.formData[targetIndex];
 };
 
+const updateFormRuleAction: CaseReducer<
+  TEditor,
+  PayloadAction<{ formId: string; rule: TFormRules }>
+> = (state, action) => {
+  // 1. Retrieve neccessary data from the payload
+  const { formId, rule } = action.payload;
+
+  // 2. Find the index of the formData needed to be updated
+  const targetIndex = state.formData?.findIndex(
+    (data) => data.formId === formId
+  );
+
+  // 3. If the target index is not found nor the form data exist, then exit.
+  if (targetIndex == -1) {
+    console.log(`updateFormRule: field not found ${formId}`);
+    return;
+  }
+
+  const ruleName = Object.keys(rule)[0] as keyof TFormRules;
+  const ruleValue = rule[ruleName];
+
+  const ruleRef = state.formData[targetIndex].rules;
+
+  switch (ruleName) {
+    case "required":
+      if (typeof ruleValue !== "boolean") return;
+      ruleRef["required"] = ruleValue;
+      break;
+    case "maxLength":
+      if (typeof ruleValue !== "number") return;
+      ruleRef["maxLength"] = ruleValue;
+      break;
+    case "minLength":
+      if (typeof ruleValue !== "number") return;
+      ruleRef["minLength"] = ruleValue;
+      break;
+    default:
+      throw new Error(
+        `Something went wrong while trying to assing the rule ${ruleName}`
+      );
+  }
+};
+
+const deleteArrayFieldAction: CaseReducer<
+  TEditor,
+  PayloadAction<{ formId: string; index: number }>
+> = (state, action) => {
+  //1. Retrieve the dependencies
+  const { formId, index } = action.payload;
+
+  // 2. Find the index of the formData needed to be updated
+  const targetIndex = state.formData?.findIndex(
+    (data) => data.formId === formId
+  );
+
+  // 3. If the target index is not found nor the form data exist, then exit.
+  if (targetIndex == -1) {
+    console.log(`field not found ${formId}`);
+    return;
+  }
+
+  // 4. Make sure only array type data passes
+  const targetField = state.formData[targetIndex];
+  if (targetField.formType !== "textMulti")
+    return console.log("Can't delete a non array type form");
+
+  // 5. Splice the form data
+  targetField.options.splice(index, 1);
+
+  //6. Update selected form
+  state.selectedForm = targetField;
+};
+
 const initialState: TEditor = {
   selectedForm: null,
   formData: [],
@@ -163,6 +236,30 @@ const editorReducer = createSlice({
     // Loads form data on successful data fetch
     loadFormData: loadFormDataAction,
 
+    deleteFormData(state, action: PayloadAction<{ formId: string }>) {
+      // I decide to use formId instead of index just to make sure we're deleting the correct form and not cause any potential bugs especially when we start handling drag & drop
+
+      //1. Retrieve the dependencies
+      const { formId } = action.payload;
+
+      // 2. Find the index of the formData needed to be updated
+      const targetIndex = state.formData?.findIndex(
+        (data) => data.formId === formId
+      );
+
+      // 3. If the target index is not found nor the form data exist, then exit.
+      if (targetIndex == -1) {
+        console.log(`field not found ${formId}`);
+        return;
+      }
+
+      // 4. If the form we're selecting is being deleted, set the selectedForm reference to null
+      if (state.selectedForm?.formId === formId) state.selectedForm = null;
+
+      // 5. Delete the form data itself
+      state.formData.splice(targetIndex, 1);
+    },
+
     // Constantly watch and updates the form whenever a change occurs on the corresponding TEXT field.
     updateTextField: updateTextFieldAction,
 
@@ -172,58 +269,23 @@ const editorReducer = createSlice({
     // Appends a new element of textMulti type elements' array
     addArrayField: addArrayFieldAction,
 
-    updateFormRule(
-      state,
-      action: PayloadAction<{ formId: string; rule: TFormRules }>
-    ) {
-      // 1. Retrieve neccessary data from the payload
-      const { formId, rule } = action.payload;
+    // Updates the existing form rules. (enable/disable both works)
+    updateFormRule: updateFormRuleAction,
 
-      // 2. Find the index of the formData needed to be updated
-      const targetIndex = state.formData?.findIndex(
-        (data) => data.formId === formId
-      );
-
-      // 3. If the target index is not found nor the form data exist, then exit.
-      if (targetIndex == -1) {
-        console.log(`updateFormRule: field not found ${formId}`);
-        return;
-      }
-
-      const ruleName = Object.keys(rule)[0] as keyof TFormRules;
-      const ruleValue = rule[ruleName];
-
-      const ruleRef = state.formData[targetIndex].rules;
-
-      switch (ruleName) {
-        case "required":
-          if (typeof ruleValue !== "boolean") return;
-          ruleRef["required"] = ruleValue;
-          break;
-        case "maxLength":
-          if (typeof ruleValue !== "number") return;
-          ruleRef["maxLength"] = ruleValue;
-          break;
-        case "minLength":
-          if (typeof ruleValue !== "number") return;
-          ruleRef["minLength"] = ruleValue;
-          break;
-        default:
-          throw new Error(
-            `Something went wrong while trying to assing the rule ${ruleName}`
-          );
-      }
-    },
+    // Deletes existing option field (THE PORPERTY MUST BE NAMED OPTION)
+    deleteArrayField: deleteArrayFieldAction,
   },
 });
 
 export const {
   selectForm,
   loadFormData,
+  deleteFormData,
   updateTextField,
   updateArrayField,
   addArrayField,
   updateFormRule,
+  deleteArrayField,
 } = editorReducer.actions;
 
 export default editorReducer.reducer;

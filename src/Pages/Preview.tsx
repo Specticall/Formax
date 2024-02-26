@@ -4,7 +4,6 @@ import Button from "../Components/General/Button";
 import { OperationalFormProvider } from "../Context/OperationalFormContext";
 import { useAppSelector } from "../Hooks/RTKHooks";
 import { createDefaultValues } from "../helper/helper";
-import { TFormMulti } from "../types/formTypes";
 
 export default function Preview() {
   const formData = useAppSelector((state) => state.editor.formData);

@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { useAppDispatch, useAppSelector } from "../../Hooks/RTKHooks";
-import { selectForm } from "../../slice/editorSlice";
+import { deleteFormData, selectForm } from "../../slice/editorSlice";
 
 interface IProps {
   children: ReactNode;
@@ -31,6 +31,10 @@ export function FormComponentWrapper({
   const handleSelect = () => {
     dispatch(selectForm(formKey));
   };
+
+  const handleDelete = () => {
+    dispatch(deleteFormData({ formId: formKey }));
+  };
   return (
     <div
       className="relative [&:hover_.warning]:opacity-100"
@@ -52,7 +56,10 @@ export function FormComponentWrapper({
       )}
       {/* //// ICON ELEMENT //// */}
       <div className="flex gap-2 z-10 absolute right-8 top-6">
-        <i className="bx bx-trash text-heading text-main-200 hover:text-danger cursor-pointer"></i>
+        <i
+          className="bx bx-trash text-heading text-main-200 hover:text-danger cursor-pointer"
+          onClick={handleDelete}
+        ></i>
         <i className="bx bx-grid-vertical text-heading text-main-200"></i>
       </div>
       {children}

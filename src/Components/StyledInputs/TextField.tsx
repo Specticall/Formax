@@ -5,6 +5,7 @@ type TProps = {
   label?: string;
   placeholder: string;
   errorMessage?: string;
+  className?: string;
 
   register?: UseFormRegisterReturn<string> | object;
 
@@ -29,6 +30,7 @@ export function TextField({
   register,
   editorRegister,
   errorMessage,
+  className = "",
 }: TProps) {
   const formRegister = register ? register : {};
   return (
@@ -38,7 +40,7 @@ export function TextField({
       <div className="w-full">
         <input
           type="text"
-          className="bg-main-0 rounded-md border-[1px] border-border text-body px-5 py-3 placeholder:text-main-200 text-main-400 break-all w-full"
+          className={`bg-main-0 rounded-md border-[1px] border-border text-body px-5 py-3 placeholder:text-main-200 text-main-400 break-all w-full ${className}`}
           style={{
             borderColor: errorMessage ? "rgb(255, 85, 146)" : "rgb(49, 49, 49)",
           }}
