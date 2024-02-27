@@ -13,7 +13,7 @@ function findFormIndexById(formData: TEditor["formData"], formId: string) {
 
   if (targetIndex == -1) {
     console.log(`field not found ${formId}`);
-    return null;
+    return -1;
   }
   return targetIndex;
 }
@@ -267,6 +267,9 @@ const initialState: TEditor = {
   dndIdentifier: [],
 };
 
+// TODO
+type TODO = any;
+// Figure out the sorting logic.
 const editorReducer = createSlice({
   name: "editor",
   initialState,
@@ -285,20 +288,32 @@ const editorReducer = createSlice({
       action: PayloadAction<{ currentFormId: string; targetFormId: string }>
     ) {
       // 1. Retrieve neccesary data
-      const { currenFormId, targetFormId } = action.payload;
+      const { currentFormId, targetFormId } = action.payload;
 
-      // Find both the targetIndex and the currentIndex
-      // 2. Find the index of the formData needed to be updated
-      const targetIndex = state.formData?.findIndex(
-        (data) => data.formId === currenFormId
-      );
+      // 2. Find both the targetIndex and the currentIndex
+      const targetIndex = findFormIndexById(formData, targetFormId);
+      const currentIndex = findFormIndexById(formData, currentFormId);
 
-      // 3. If the target index is not found nor the form data exist, then exit.
-      if (targetIndex == -1) {
-        console.log(`field not found ${formId}`);
-        return;
-      }
+      console.log(currentFormId, targetFormId);
+
+      if (targetIndex == -1 || currentIndex == -1) return;
+      // 3. Swap both items
+      const temp = state.formData[targetIndex];
+      state.formData[targetIndex] = state.formData[currentIndex];
+      state.formData[currentIndex] = temp;
+
+      // state.dndIdentifier = state.formData.map((data) => data.formId);
     },
+
+    /*
+    [a, b, c]
+    [a<c>, b, <>]
+    [<c>, a, b]
+
+    [a, b, c]
+    [<>, b, <a>c]
+
+    */
 
     // Constantly watch and updates the form whenever a change occurs on the corresponding TEXT field.
     updateTextField: updateTextFieldAction,
@@ -326,6 +341,7 @@ export const {
   addArrayField,
   updateFormRule,
   deleteArrayField,
+  swapFormData,
 } = editorReducer.actions;
 
 export default editorReducer.reducer;

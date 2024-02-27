@@ -4,11 +4,14 @@ import { Navbar } from "../Components/Editor/Navbar";
 import { EditorPropertyPanel } from "../Components/Editor/EditorPropertyPanel";
 import {
   DndContext,
+  DragEndEvent,
   PointerSensor,
   closestCenter,
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
+import { useAppDispatch } from "../Hooks/RTKHooks";
+import { swapFormData } from "../slice/editorSlice";
 
 /**
  * Provide structure to the main editor. This component acts as the up most parent component on the Editor route
@@ -16,9 +19,21 @@ import {
  */
 export default function EditorLayout() {
   const sensors = useSensors(useSensor(PointerSensor));
+  const dispatch = useAppDispatch();
 
-  const handleDragEnd = () => {
-    console.log("drag end");
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active: current, over: target } = event;
+    if (!target || !current)
+      return console.log("Drag target or current is null");
+    console.log(current.id, target.id);
+
+    dispatch(
+      swapFormData({
+        targetFormId: target.id as string,
+        currentFormId: current.id as string,
+      })
+    );
+    // console.log(current.id, target.id);
   };
   return (
     <DndContext
