@@ -1,6 +1,23 @@
 import { CaseReducer, PayloadAction, createSlice } from "@reduxjs/toolkit";
 import { ExtractKeyValues, TFormData, TFormRules } from "../types/formTypes";
 
+import { formData } from "../App";
+interface TEditor {
+  selectedForm: TFormData | null;
+  formData: TFormData[];
+  dndIdentifier: string[];
+}
+
+function findFormIndexById(formData: TEditor["formData"], formId: string) {
+  const targetIndex = formData?.findIndex((data) => data.formId === formId);
+
+  if (targetIndex == -1) {
+    console.log(`field not found ${formId}`);
+    return null;
+  }
+  return targetIndex;
+}
+
 const selectFormAction: CaseReducer<TEditor, PayloadAction<string>> = (
   state,
   action
@@ -19,6 +36,7 @@ const loadFormDataAction: CaseReducer<TEditor, PayloadAction<TFormData[]>> = (
   action
 ) => {
   state.formData = action.payload;
+  state.dndIdentifier = formData.map((data) => data.formId);
 };
 
 const updateTextFieldAction: CaseReducer<
@@ -65,10 +83,32 @@ const updateTextFieldAction: CaseReducer<
   }
 };
 
-interface TEditor {
-  selectedForm: TFormData | null;
-  formData: TFormData[];
-}
+const deleteFormDataAction: CaseReducer<
+  TEditor,
+  PayloadAction<{ formId: string }>
+> = (state, action) => {
+  // I decide to use formId instead of index just to make sure we're deleting the correct form and not cause any potential bugs especially when we start handling drag & drop
+
+  //1. Retrieve the dependencies
+  const { formId } = action.payload;
+
+  // 2. Find the index of the formData needed to be updated
+  const targetIndex = state.formData?.findIndex(
+    (data) => data.formId === formId
+  );
+
+  // 3. If the target index is not found nor the form data exist, then exit.
+  if (targetIndex == -1) {
+    console.log(`field not found ${formId}`);
+    return;
+  }
+
+  // 4. If the form we're selecting is being deleted, set the selectedForm reference to null
+  if (state.selectedForm?.formId === formId) state.selectedForm = null;
+
+  // 5. Delete the form data itself
+  state.formData.splice(targetIndex, 1);
+};
 
 const updateArrayFieldAction: CaseReducer<
   TEditor,
@@ -224,6 +264,7 @@ const deleteArrayFieldAction: CaseReducer<
 const initialState: TEditor = {
   selectedForm: null,
   formData: [],
+  dndIdentifier: [],
 };
 
 const editorReducer = createSlice({
@@ -236,15 +277,20 @@ const editorReducer = createSlice({
     // Loads form data on successful data fetch
     loadFormData: loadFormDataAction,
 
-    deleteFormData(state, action: PayloadAction<{ formId: string }>) {
-      // I decide to use formId instead of index just to make sure we're deleting the correct form and not cause any potential bugs especially when we start handling drag & drop
+    // Delete a form based on a given id
+    deleteFormData: deleteFormDataAction,
 
-      //1. Retrieve the dependencies
-      const { formId } = action.payload;
+    swapFormData(
+      state,
+      action: PayloadAction<{ currentFormId: string; targetFormId: string }>
+    ) {
+      // 1. Retrieve neccesary data
+      const { currenFormId, targetFormId } = action.payload;
 
+      // Find both the targetIndex and the currentIndex
       // 2. Find the index of the formData needed to be updated
       const targetIndex = state.formData?.findIndex(
-        (data) => data.formId === formId
+        (data) => data.formId === currenFormId
       );
 
       // 3. If the target index is not found nor the form data exist, then exit.
@@ -252,12 +298,6 @@ const editorReducer = createSlice({
         console.log(`field not found ${formId}`);
         return;
       }
-
-      // 4. If the form we're selecting is being deleted, set the selectedForm reference to null
-      if (state.selectedForm?.formId === formId) state.selectedForm = null;
-
-      // 5. Delete the form data itself
-      state.formData.splice(targetIndex, 1);
     },
 
     // Constantly watch and updates the form whenever a change occurs on the corresponding TEXT field.

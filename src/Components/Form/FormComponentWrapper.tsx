@@ -1,6 +1,8 @@
 import { ReactNode } from "react";
 import { useAppDispatch, useAppSelector } from "../../Hooks/RTKHooks";
 import { deleteFormData, selectForm } from "../../slice/editorSlice";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 interface IProps {
   children: ReactNode;
@@ -25,8 +27,21 @@ export function FormComponentWrapper({
   const selected = useAppSelector((state) => state.editor.selectedForm?.formId);
   const dispatch = useAppDispatch();
 
+  // dnd-kit
+  const { attributes, listeners, setNodeRef, transform, transition } =
+    useSortable({
+      id: formKey,
+    });
+
   // This is always false if hover is disabled.
   const isSelected = formKey === selected && !disableHover;
+
+  // Style for dnd kit sorting and selected background
+  const style = {
+    transform: CSS.Translate.toString(transform),
+    transition,
+    background: isSelected ? "#1C1B23" : "rgb(23,24,28)",
+  };
 
   const handleSelect = () => {
     dispatch(selectForm(formKey));
@@ -38,7 +53,10 @@ export function FormComponentWrapper({
   return (
     <div
       className="relative [&:hover_.warning]:opacity-100"
-      style={{ background: isSelected ? "#1C1B23" : "rgb(23,24,28)" }}
+      style={style}
+      ref={setNodeRef}
+      {...attributes}
+      {...listeners}
     >
       {/* //// HOVER ELEMENT //// */}
       {disableHover || (

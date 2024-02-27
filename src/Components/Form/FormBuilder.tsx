@@ -4,6 +4,10 @@ import { FormTitle } from "./FormTitle";
 import { FormShort } from "./FormShort";
 import { useAppSelector } from "../../Hooks/RTKHooks";
 import { TFormData } from "../../types/formTypes";
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
 
 interface IProps {
   isEditing?: boolean;
@@ -49,10 +53,15 @@ function parseFormData(formData: TFormData, isEditing: boolean = false) {
  */
 export default function FormBuilder({ isEditing = false }: IProps) {
   const formData = useAppSelector((state) => state.editor.formData);
-
+  const dndIdentifier = useAppSelector((state) => state.editor.dndIdentifier);
   return (
     <article className="max-w-[70rem] mx-auto bg-form divide-y-[1px] [&>*]:px-8 [&>*]:py-8 divide-border">
-      {formData?.map((form) => parseFormData(form, isEditing))}
+      <SortableContext
+        items={dndIdentifier}
+        strategy={verticalListSortingStrategy}
+      >
+        {formData?.map((form) => parseFormData(form, isEditing))}
+      </SortableContext>
     </article>
   );
 }
