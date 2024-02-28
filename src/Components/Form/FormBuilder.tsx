@@ -23,17 +23,25 @@ interface IProps {
 function parseFormData(formData: TFormData, isEditing: boolean = false) {
   switch (formData.type) {
     case "title":
-      return <FormTitle {...formData} isEditing={isEditing} />;
+      return (
+        <FormTitle {...formData} isEditing={isEditing} key={formData.formId} />
+      );
       break;
     case "short": {
-      return <FormShort {...formData} isEditing={isEditing} />;
+      return (
+        <FormShort {...formData} isEditing={isEditing} key={formData.formId} />
+      );
       break;
     }
     case "long":
-      return <FormLong {...formData} isEditing={isEditing} />;
+      return (
+        <FormLong {...formData} isEditing={isEditing} key={formData.formId} />
+      );
       break;
     case "multi":
-      return <FormMulti {...formData} isEditing={isEditing} />;
+      return (
+        <FormMulti {...formData} isEditing={isEditing} key={formData.formId} />
+      );
       break;
     default: {
       throw new Error(
@@ -53,11 +61,11 @@ function parseFormData(formData: TFormData, isEditing: boolean = false) {
  */
 export default function FormBuilder({ isEditing = false }: IProps) {
   const formData = useAppSelector((state) => state.editor.formData);
-  const dndIdentifier = useAppSelector((state) => state.editor.dndIdentifier);
+
   return (
     <article className="max-w-[70rem] mx-auto bg-form divide-y-[1px] [&>*]:px-8 [&>*]:py-8 divide-border">
       <SortableContext
-        items={dndIdentifier}
+        items={formData.map((data) => data.formId)}
         strategy={verticalListSortingStrategy}
       >
         {formData?.map((form) => parseFormData(form, isEditing))}

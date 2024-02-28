@@ -2,10 +2,16 @@ import { CaseReducer, PayloadAction, createSlice } from "@reduxjs/toolkit";
 import { ExtractKeyValues, TFormData, TFormRules } from "../types/formTypes";
 
 import { formData } from "../App";
+import { arrayMove } from "@dnd-kit/sortable";
+import {
+  createNewFormWithId,
+  formList,
+} from "../Components/Editor/NewFormPanel";
+import { arrayInsertAt } from "../helper/helper";
 interface TEditor {
   selectedForm: TFormData | null;
   formData: TFormData[];
-  dndIdentifier: string[];
+  highlighted: string;
 }
 
 function findFormIndexById(formData: TEditor["formData"], formId: string) {
@@ -261,10 +267,30 @@ const deleteArrayFieldAction: CaseReducer<
   state.selectedForm = targetField;
 };
 
+const swapFormDataAction: CaseReducer<
+  TEditor,
+  PayloadAction<{
+    currentFormId: string;
+    targetFormId: string;
+  }>
+> = (state, action) => {
+  // 1. Retrieve neccesary data
+  const { currentFormId, targetFormId } = action.payload;
+
+  // 2. Find both the targetIndex and the currentIndex
+  const targetIndex = findFormIndexById(state.formData, targetFormId);
+  const currentIndex = findFormIndexById(state.formData, currentFormId);
+
+  if (targetIndex == -1 || currentIndex == -1) return;
+
+  // 3. Swap both items
+  state.formData = arrayMove(state.formData, currentIndex, targetIndex);
+};
+
 const initialState: TEditor = {
   selectedForm: null,
   formData: [],
-  dndIdentifier: [],
+  highlighted: "",
 };
 
 // TODO
@@ -283,37 +309,37 @@ const editorReducer = createSlice({
     // Delete a form based on a given id
     deleteFormData: deleteFormDataAction,
 
-    swapFormData(
-      state,
-      action: PayloadAction<{ currentFormId: string; targetFormId: string }>
-    ) {
-      // 1. Retrieve neccesary data
-      const { currentFormId, targetFormId } = action.payload;
+    // Reorders the form data.
+    swapFormData: swapFormDataAction,
 
-      // 2. Find both the targetIndex and the currentIndex
-      const targetIndex = findFormIndexById(formData, targetFormId);
-      const currentIndex = findFormIndexById(formData, currentFormId);
-
-      console.log(currentFormId, targetFormId);
-
-      if (targetIndex == -1 || currentIndex == -1) return;
-      // 3. Swap both items
-      const temp = state.formData[targetIndex];
-      state.formData[targetIndex] = state.formData[currentIndex];
-      state.formData[currentIndex] = temp;
-
-      // state.dndIdentifier = state.formData.map((data) => data.formId);
+    highlightFormData(state, action: PayloadAction<string>) {
+      state.highlighted = action.payload;
     },
 
-    /*
-    [a, b, c]
-    [a<c>, b, <>]
-    [<c>, a, b]
+    clearHighlightFormData(state) {
+      // console.log("clear");
+      state.highlighted = "";
+    },
 
-    [a, b, c]
-    [<>, b, <a>c]
+    addFormData(
+      state,
+      action: PayloadAction<{
+        targetFormId: string;
+        formType: keyof typeof formList;
+      }>
+    ) {
+      const { targetFormId, formType } = action.payload;
 
-    */
+      const targetIndex = findFormIndexById(state.formData, targetFormId);
+      if (targetIndex == -1) return;
+
+      state.formData = arrayInsertAt(
+        state.formData,
+        targetIndex + 1,
+        // Create a new form with generated UUID
+        createNewFormWithId(formList[formType])
+      );
+    },
 
     // Constantly watch and updates the form whenever a change occurs on the corresponding TEXT field.
     updateTextField: updateTextFieldAction,
@@ -342,6 +368,9 @@ export const {
   updateFormRule,
   deleteArrayField,
   swapFormData,
+  highlightFormData,
+  clearHighlightFormData,
+  addFormData,
 } = editorReducer.actions;
 
 export default editorReducer.reducer;

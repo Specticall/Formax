@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { CSSProperties, ReactNode } from "react";
 import { useAppDispatch, useAppSelector } from "../../Hooks/RTKHooks";
 import { deleteFormData, selectForm } from "../../slice/editorSlice";
 import { useSortable } from "@dnd-kit/sortable";
@@ -25,9 +25,12 @@ export function FormComponentWrapper({
   if (!formKey) throw new Error("Form key not provided!");
 
   const selected = useAppSelector((state) => state.editor.selectedForm?.formId);
+
+  const isHighlighted =
+    useAppSelector((state) => state.editor.highlighted) === formKey;
   const dispatch = useAppDispatch();
 
-  // dnd-kit
+  // dnd-kit used to hook the component to the dnd-kit context.
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({
       id: formKey,
@@ -37,10 +40,11 @@ export function FormComponentWrapper({
   const isSelected = formKey === selected && !disableHover;
 
   // Style for dnd kit sorting and selected background
-  const style = {
+  const style: CSSProperties = {
     transform: CSS.Translate.toString(transform),
     transition,
     background: isSelected ? "#1C1B23" : "rgb(23,24,28)",
+    borderBottom: isHighlighted ? "5px solid white" : "",
   };
 
   const handleSelect = () => {

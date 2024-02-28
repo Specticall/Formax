@@ -27,9 +27,13 @@ export function FormTitle({
   return (
     <FormComponentWrapper formKey={formId} disableHover={!isEditing}>
       <div className="flex justify-between">
-        <h1 className="text-title text-main-400 mb-1">{title}</h1>
+        <h1 className="text-title text-main-400 mb-1">
+          {title || "Your Title Here"}
+        </h1>
       </div>
-      <p className="text-body text-main-200">{subtitle}</p>
+      <p className="text-body text-main-200">
+        {subtitle || "Your Subtitle Here"}
+      </p>
     </FormComponentWrapper>
   );
 }

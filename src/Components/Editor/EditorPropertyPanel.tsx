@@ -14,19 +14,20 @@ import { useLayoutEffect } from "react";
 
 type TFormTypes = ExtractType<TFormData> | "none";
 
-function getPropertyComponentFrom(formType: TFormTypes) {
+// formId is required so react can differentiate between different components. Without this, switching to the sampe componen type will not result in a rerender.
+function getPropertyComponentFrom(formType: TFormTypes, formId: string) {
   switch (formType) {
     case "title":
-      return <PropertyFormTitle />;
+      return <PropertyFormTitle key={formId} />;
       break;
     case "long":
-      return <PropertyFormLong />;
+      return <PropertyFormLong key={formId} />;
       break;
     case "multi":
-      return <PropertyFormMulti />;
+      return <PropertyFormMulti key={formId} />;
       break;
     case "short":
-      return <PropertyFormShort />;
+      return <PropertyFormShort key={formId} />;
       break;
     case "none":
       return <div>Empty</div>;
@@ -37,12 +38,14 @@ function getPropertyComponentFrom(formType: TFormTypes) {
 }
 
 export function EditorPropertyPanel() {
-  const selectedFormType =
-    useAppSelector((state) => state.editor.selectedForm?.type) || "none";
+  const selectedForm = useAppSelector((state) => state.editor.selectedForm);
+
+  const selectedFormType = selectedForm?.type || "none";
+  const formId = selectedForm?.formId || "no-id";
 
   return (
     <aside className="fixed h-[calc(100vh-4rem)] w-[25rem] bg-main-100 border-l-[1px] right-0 border-border overflow-y-auto top-[4rem]">
-      {getPropertyComponentFrom(selectedFormType)}
+      {getPropertyComponentFrom(selectedFormType, formId)}
     </aside>
   );
 }

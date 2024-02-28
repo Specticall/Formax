@@ -15,32 +15,31 @@ export const formData: TFormData[] = [
     formType: "textPlain",
     rules: {},
   },
-  {
-    type: "multi",
-    heading: "Which of these traits best describe you?",
-    options: ["A. Moody", "B. Expressive", "C. Calm and Collected"],
-    formId: "ID_MULTI",
-    selected: { 1: true, 3: true },
-    formType: "textMulti",
-    rules: {},
-  },
-  {
-    type: "long",
-    heading: "Tell us your experiences!",
-    placeholder: "I'm familiar with many technologies such as...",
-    formId: "ID_LONG",
-    formType: "textField",
-    rules: {},
-  },
-
-  {
-    type: "short",
-    heading: "What's your name",
-    placeholder: "Joseph Yusmita",
-    formId: "ID_SHORT",
-    formType: "textField",
-    rules: {},
-  },
+  // {
+  //   type: "multi",
+  //   heading: "Which of these traits best describe you?",
+  //   options: ["A. Moody", "B. Expressive", "C. Calm and Collected"],
+  //   formId: "ID_MULTI",
+  //   selected: { 1: true, 3: true },
+  //   formType: "textMulti",
+  //   rules: {},
+  // },
+  // {
+  //   type: "long",
+  //   heading: "Tell us your experiences!",
+  //   placeholder: "I'm familiar with many technologies such as...",
+  //   formId: "ID_LONG",
+  //   formType: "textField",
+  //   rules: {},
+  // },
+  // {
+  //   type: "short",
+  //   heading: "What's your name",
+  //   placeholder: "Joseph Yusmita",
+  //   formId: "ID_SHORT",
+  //   formType: "textField",
+  //   rules: {},
+  // },
 ];
 
 const router = createBrowserRouter([

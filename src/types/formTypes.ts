@@ -37,8 +37,10 @@ export type TFormMulti = {
 };
 
 export type TFormData = TFormMulti | TFormTextField | TFormPlainText;
+
 /*
 This type represent the form field data type usually passed in to react hook form's `useForm()` however since not creating the forms manually the type has be made this way.
+
 
 {
   type: [contains the form component type name (abbreviations)]
