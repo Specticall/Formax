@@ -8,7 +8,6 @@ import {
   DragOverEvent,
   DragStartEvent,
   MouseSensor,
-  PointerSensor,
   closestCorners,
   useSensor,
   useSensors,
@@ -21,17 +20,9 @@ import {
   swapFormData,
 } from "../slice/editorSlice";
 import { NewFormPanel, formList } from "../Components/Editor/NewFormPanel";
-import {
-  MouseEvent,
-  MouseEventHandler,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { useEffect, useRef, useState } from "react";
 
 // List of class names that will prevent any dragend event from happening AKA triggers drag cancel when hovered.
-const unallowedDragArea = ["new-form-panel"];
 
 /**
  * Provide structure to the main editor. This component acts as the up most parent component on the Editor route
@@ -58,10 +49,9 @@ export default function EditorLayout() {
   // Flags when the mouse enters an unallowed drag area WHILE dragging.
   const [onUnallowedDragArea, setOnUnallowedDragArea] = useState(false);
 
-  // This effect will send additional data to the editorStore so it can canel any drag events that hovers a certain element e.g. `<newFormPanel/>`
+  // This effect checks if the mouse position is on the board, if not then cancel any potential drag events for better UX.
+  // We're not using .closest because dnd-kit messes with the mouse event, so this is the work around we have to deal with.
   useEffect(() => {
-    // console.log(isDragging);
-
     const watchMouse = (e: globalThis.MouseEvent) => {
       if (!isDragging) return;
 
@@ -71,6 +61,7 @@ export default function EditorLayout() {
       const withinXAxis = formPos.left < e.clientX && e.clientX < formPos.right;
 
       setOnUnallowedDragArea(withinXAxis ? false : true);
+      if (!withinXAxis) dispatch(clearHighlightFormData());
     };
 
     window.addEventListener("mousemove", watchMouse);
@@ -84,10 +75,10 @@ export default function EditorLayout() {
   */
   const handleDragEnd = (event: DragEndEvent) => {
     setIsDragging(false);
+    setIsReodering(false);
     // Execute the steps below if we're NOT reordering (adding new items)
     if (!isReordering) {
       // Flag end of reording (if happened in the first place)
-      setIsReodering(false);
 
       // Clear any highlight that might have been made (dragging new elements over)
       dispatch(clearHighlightFormData());
@@ -123,11 +114,12 @@ export default function EditorLayout() {
     );
   };
 
-  const handleDragOver = (e: DragOverEvent) => {
-    console.log(e);
+  const handleDragMove = (e: DragOverEvent) => {
     // Only executes if the user is not reordering items.
-    if (isReordering || !e.over) return;
+    if (isReordering || !e.over || onUnallowedDragArea) return;
+
     dispatch(highlightFormData(e.over.id as string));
+
     // console.log(e.over);
   };
 
@@ -142,7 +134,7 @@ export default function EditorLayout() {
       sensors={sensors}
       collisionDetection={closestCorners}
       onDragEnd={handleDragEnd}
-      onDragOver={handleDragOver}
+      onDragMove={handleDragMove}
       onDragStart={handleDragStart}
     >
       <main className="bg-bg min-h-screen grid grid-cols-[10rem_1fr_25rem]">
