@@ -40,7 +40,11 @@ export function FormLong({
     ?.message as string;
 
   return (
-    <FormComponentWrapper formKey={formLabel} disableHover={!isEditing}>
+    <FormComponentWrapper
+      formKey={formLabel}
+      disableHover={!isEditing}
+      isEditing={isEditing}
+    >
       <div>
         <div className="flex items-center gap-4 mb-6">
           <IconBox>
@@ -48,7 +52,9 @@ export function FormLong({
           </IconBox>
           <div>
             <p className="text-main-300 text-body">Long Answer</p>
-            <h2 className="text-main-400 text-heading">{heading}</h2>
+            <h2 className="text-main-400 text-heading">
+              {heading || "Your Heading Here"}
+            </h2>
           </div>
         </div>
 

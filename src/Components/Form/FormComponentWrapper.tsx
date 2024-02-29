@@ -8,6 +8,7 @@ interface IProps {
   children: ReactNode;
   disableHover?: boolean;
   formKey: string;
+  isEditing?: boolean;
 }
 
 /**
@@ -21,6 +22,7 @@ export function FormComponentWrapper({
   formKey,
   children,
   disableHover = false,
+  isEditing = false,
 }: IProps) {
   if (!formKey) throw new Error("Form key not provided!");
 
@@ -54,6 +56,7 @@ export function FormComponentWrapper({
   const handleDelete = () => {
     dispatch(deleteFormData({ formId: formKey }));
   };
+
   return (
     <div
       className="relative [&:hover_.warning]:opacity-100"
@@ -78,11 +81,15 @@ export function FormComponentWrapper({
       )}
       {/* //// ICON ELEMENT //// */}
       <div className="flex gap-2 z-10 absolute right-8 top-6">
-        <i
-          className="bx bx-trash text-heading text-main-200 hover:text-danger cursor-pointer"
-          onClick={handleDelete}
-        ></i>
-        <i className="bx bx-grid-vertical text-heading text-main-200"></i>
+        {isEditing && (
+          <>
+            <i
+              className="bx bx-trash text-heading text-main-200 hover:text-danger cursor-pointer"
+              onClick={handleDelete}
+            ></i>
+            <i className="bx bx-grid-vertical text-heading text-main-200"></i>
+          </>
+        )}
       </div>
       {children}
     </div>

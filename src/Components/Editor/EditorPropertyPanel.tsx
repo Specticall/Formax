@@ -30,7 +30,7 @@ function getPropertyComponentFrom(formType: TFormTypes, formId: string) {
       return <PropertyFormShort key={formId} />;
       break;
     case "none":
-      return <div>Empty</div>;
+      return;
       break;
     default:
       throw new Error(`Invalid Property Component Type : ${formType}`);

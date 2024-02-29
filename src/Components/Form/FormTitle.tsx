@@ -25,7 +25,11 @@ export function FormTitle({
   isEditing = false,
 }: IProps) {
   return (
-    <FormComponentWrapper formKey={formId} disableHover={!isEditing}>
+    <FormComponentWrapper
+      formKey={formId}
+      disableHover={!isEditing}
+      isEditing={isEditing}
+    >
       <div className="flex justify-between">
         <h1 className="text-title text-main-400 mb-1">
           {title || "Your Title Here"}

@@ -66,7 +66,6 @@ export function useEditor({ formId }: TEditorProps) {
       */
       onChange(e) {
         if (!formId) throw new Error(`Form id for field ${fieldType} is null`);
-        if (formData?.formType === "textMulti") return;
         dispatch(
           updateTextField({ value: e.target.value, formId, field: fieldType })
         );

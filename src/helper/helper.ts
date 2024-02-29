@@ -83,3 +83,7 @@ export function arrayInsertAt<T>(array: T[], targetIndex: number, item: T) {
 
   return newArray;
 }
+
+export function isSameArray<T>(arr1: T[], arr2: T[]) {
+  return arr1.every((item, index) => item === arr2[index]);
+}

@@ -32,7 +32,7 @@ export const formList: Record<TFormData["type"], TFormData> = {
   multi: {
     type: "multi",
     heading: "",
-    options: [],
+    options: ["Your Options Here"],
     selected: {},
     formType: "textMulti",
     formId: "",

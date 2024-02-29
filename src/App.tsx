@@ -5,16 +5,18 @@ import { useEffect } from "react";
 import { useAppDispatch } from "./Hooks/RTKHooks";
 import { loadFormData } from "./slice/editorSlice";
 import { TFormData } from "./types/formTypes";
+import { ViewportProvider } from "./Context/ViewportProvider";
+import { ShortcutProvider } from "./Context/ShortcutProvider";
 
 export const formData: TFormData[] = [
-  {
-    type: "title",
-    title: "Tell Us About Yourself",
-    subtitle: "Please fill this section and tell us about your experience",
-    formId: "ID_TITLE",
-    formType: "textPlain",
-    rules: {},
-  },
+  // {
+  //   type: "title",
+  //   title: "Tell Us About Yourself",
+  //   subtitle: "Please fill this section and tell us about your experience",
+  //   formId: "ID_TITLE",
+  //   formType: "textPlain",
+  //   rules: {},
+  // },
   // {
   //   type: "multi",
   //   heading: "Which of these traits best describe you?",
@@ -59,5 +61,11 @@ export default function App() {
     dispatch(loadFormData(formData));
   }, [dispatch]);
 
-  return <RouterProvider router={router} />;
+  return (
+    <ViewportProvider>
+      <ShortcutProvider>
+        <RouterProvider router={router} />
+      </ShortcutProvider>
+    </ViewportProvider>
+  );
 }

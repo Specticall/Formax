@@ -158,7 +158,11 @@ function MultiInput({
   }, [selected]);
 
   return (
-    <FormComponentWrapper disableHover={!isEditing} formKey={formId}>
+    <FormComponentWrapper
+      disableHover={!isEditing}
+      formKey={formId}
+      isEditing={isEditing}
+    >
       <div>
         <div className="flex items-center gap-4 mb-6">
           <IconBox>
@@ -166,7 +170,9 @@ function MultiInput({
           </IconBox>
           <div>
             <p className="text-main-300 text-body">Multiple Choice</p>
-            <h2 className="text-main-400 text-heading">{heading}</h2>
+            <h2 className="text-main-400 text-heading">
+              {heading || "Your Heading Here"}
+            </h2>
           </div>
         </div>
         <ul className="grid gap-3">

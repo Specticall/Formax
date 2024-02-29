@@ -8,6 +8,7 @@ import {
   SortableContext,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
+import { PropsWithChildren, forwardRef } from "react";
 
 interface IProps {
   isEditing?: boolean;
@@ -59,17 +60,47 @@ function parseFormData(formData: TFormData, isEditing: boolean = false) {
  * @param formData - Contains the formData that will get parsed into actual components.
  * @returns
  */
-export default function FormBuilder({ isEditing = false }: IProps) {
-  const formData = useAppSelector((state) => state.editor.formData);
+const FormBuilder = forwardRef<HTMLElement, PropsWithChildren<IProps>>(
+  function ({ isEditing = false }, ref) {
+    const formData = useAppSelector((state) => state.editor.formData);
 
-  return (
-    <article className="max-w-[70rem] mx-auto bg-form divide-y-[1px] [&>*]:px-8 [&>*]:py-8 divide-border">
-      <SortableContext
-        items={formData.map((data) => data.formId)}
-        strategy={verticalListSortingStrategy}
+    // Returns true if the user hovers over an empty board space.
+    const isHighlighted = useAppSelector(
+      (state) => state.editor.boardHighlighted
+    );
+
+    return (
+      <article
+        className={`max-w-[70rem] mx-auto bg-form [&>*]:px-8  ${
+          isEditing
+            ? "divide-border divide-y-[1px] [&>*]:py-8"
+            : "[&>*]:py-6 pt-4"
+        } min-h-[calc(100vh-_10rem)] group`}
+        ref={ref}
+        style={{
+          outline: isHighlighted ? "1px solid white" : "",
+        }}
       >
-        {formData?.map((form) => parseFormData(form, isEditing))}
-      </SortableContext>
-    </article>
-  );
-}
+        <SortableContext
+          items={formData.map((data) => data.formId)}
+          strategy={verticalListSortingStrategy}
+        >
+          {formData?.map((form) => parseFormData(form, isEditing))}
+        </SortableContext>
+        {/* Empty screen indicator */}
+        {formData.length === 0 && (
+          <div
+            className="text-main-200 h-[calc(100vh-_10rem)] flex flex-col items-center justify-center"
+            style={isHighlighted ? { color: "white" } : undefined}
+          >
+            <i className="bx bx-add-to-queue text-[3rem] mb-4"></i>
+            <h2 className="text-title">Empty</h2>
+            <p>Drag and drop your forms here</p>
+          </div>
+        )}
+      </article>
+    );
+  }
+);
+
+export default FormBuilder;

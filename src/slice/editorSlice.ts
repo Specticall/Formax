@@ -12,6 +12,7 @@ interface TEditor {
   selectedForm: TFormData | null;
   formData: TFormData[];
   highlighted: string;
+  boardHighlighted: boolean;
 }
 
 function findFormIndexById(formData: TEditor["formData"], formId: string) {
@@ -291,6 +292,8 @@ const initialState: TEditor = {
   selectedForm: null,
   formData: [],
   highlighted: "",
+  // Checks if the entire board is highlighted
+  boardHighlighted: false,
 };
 
 // TODO
@@ -316,19 +319,29 @@ const editorReducer = createSlice({
       state.highlighted = action.payload;
     },
 
+    highlightBoard(state) {
+      state.boardHighlighted = true;
+    },
+
     clearHighlightFormData(state) {
       // console.log("clear");
       state.highlighted = "";
+      state.boardHighlighted = false;
     },
 
     addFormData(
       state,
       action: PayloadAction<{
-        targetFormId: string;
+        targetFormId: string | "empty";
         formType: keyof typeof formList;
       }>
     ) {
       const { targetFormId, formType } = action.payload;
+
+      if (targetFormId === "empty") {
+        state.formData = [createNewFormWithId(formList[formType])];
+        return;
+      }
 
       const targetIndex = findFormIndexById(state.formData, targetFormId);
       if (targetIndex == -1) return;
@@ -371,6 +384,7 @@ export const {
   highlightFormData,
   clearHighlightFormData,
   addFormData,
+  highlightBoard,
 } = editorReducer.actions;
 
 export default editorReducer.reducer;

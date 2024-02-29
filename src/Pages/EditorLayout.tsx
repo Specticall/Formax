@@ -16,6 +16,7 @@ import { useAppDispatch } from "../Hooks/RTKHooks";
 import {
   addFormData,
   clearHighlightFormData,
+  highlightBoard,
   highlightFormData,
   swapFormData,
 } from "../slice/editorSlice";
@@ -39,6 +40,7 @@ export default function EditorLayout() {
   const dispatch = useAppDispatch();
 
   const formElRef = useRef<HTMLFormElement | null>(null);
+  const boardElRef = useRef<HTMLElement | null>(null);
 
   // Only flags true if the user reoders elements. used to differentiate between dragging item from the newInput component or doing reordering.
   const [isReordering, setIsReodering] = useState(false);
@@ -49,18 +51,32 @@ export default function EditorLayout() {
   // Flags when the mouse enters an unallowed drag area WHILE dragging.
   const [onUnallowedDragArea, setOnUnallowedDragArea] = useState(false);
 
-  // This effect checks if the mouse position is on the board, if not then cancel any potential drag events for better UX.
-  // We're not using .closest because dnd-kit messes with the mouse event, so this is the work around we have to deal with.
+  // Checks if the mouse pointer is hovering over the board.
+  const [pointerWithinBoard, setPointerWithinBoard] = useState(false);
+
+  // This effect checks if the mouse position is on the board, if not then cancel any potential drag events.
+  // We're not using .closest() because dnd-kit messes with the mouse event making it not expose the element we're hovering, so this is the work around we have to deal with.
   useEffect(() => {
     const watchMouse = (e: globalThis.MouseEvent) => {
       if (!isDragging) return;
 
       const formPos = formElRef.current?.getBoundingClientRect();
+      const boardPos = boardElRef.current?.getBoundingClientRect();
 
-      if (!formPos) return;
+      if (!formPos || !boardPos) return;
+      // Check within form editor area
       const withinXAxis = formPos.left < e.clientX && e.clientX < formPos.right;
 
+      // Check within board
+      const withinBoardXAxis =
+        boardPos.left < e.clientX && e.clientX < boardPos.right;
+      const withinBoardYAxis =
+        boardPos.top < e.clientY && e.clientY < boardPos.bottom;
+      const withinBoard = withinBoardXAxis && withinBoardYAxis;
+
+      setPointerWithinBoard(withinBoard ? true : false);
       setOnUnallowedDragArea(withinXAxis ? false : true);
+      // Clear highlight if we're outside the bounding area
       if (!withinXAxis) dispatch(clearHighlightFormData());
     };
 
@@ -93,6 +109,10 @@ export default function EditorLayout() {
           addFormData({ formType, targetFormId: event.over.id as string })
         );
 
+      if (!event.over && pointerWithinBoard) {
+        dispatch(addFormData({ formType, targetFormId: "empty" }));
+      }
+
       return;
     }
 
@@ -116,9 +136,16 @@ export default function EditorLayout() {
 
   const handleDragMove = (e: DragOverEvent) => {
     // Only executes if the user is not reordering items.
-    if (isReordering || !e.over || onUnallowedDragArea) return;
+    if (isReordering || onUnallowedDragArea) return;
 
-    dispatch(highlightFormData(e.over.id as string));
+    // If hovering over a specific form area, then :
+    if (e.over) {
+      // highlights under specific form area
+      dispatch(highlightFormData(e.over.id as string));
+    } else {
+      // highlights entire board
+      dispatch(highlightBoard());
+    }
 
     // console.log(e.over);
   };
@@ -145,11 +172,11 @@ export default function EditorLayout() {
           className="editor-board p-12 h-[calc(100vh-4rem)] overflow-y-auto mx-auto w-full"
           ref={formElRef}
         >
-          <FormBuilder isEditing />
+          <FormBuilder isEditing ref={boardElRef} />
         </form>
         {/* ////////// ASIDE "FOUNDATION" ///////// */}
         {/* This element is used to take place the real aside element's place in order to maintain the grid's formattion */}
-        <div className="w-full bg-red-500 h-[calc(100vh-4rem)]">test</div>
+        <div className="w-full bg-red-500 h-[calc(100vh-4rem)]"></div>
         {/* ////////// ASIDE COMPONENT ///////// */}
         <EditorPropertyPanel />
       </main>

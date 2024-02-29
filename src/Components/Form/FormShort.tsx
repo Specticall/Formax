@@ -39,7 +39,11 @@ export function FormShort({
   const formErrors = formMethods?.formState.errors;
 
   return (
-    <FormComponentWrapper disableHover={canSubmit} formKey={formLabel}>
+    <FormComponentWrapper
+      disableHover={canSubmit}
+      formKey={formLabel}
+      isEditing={isEditing}
+    >
       <div>
         <div className="flex items-center gap-4 mb-6">
           <IconBox>
@@ -47,7 +51,9 @@ export function FormShort({
           </IconBox>
           <div>
             <p className="text-main-300 text-body">Short Answer</p>
-            <h2 className="text-main-400 text-heading">{heading}</h2>
+            <h2 className="text-main-400 text-heading">
+              {heading || "Your Heading Here"}
+            </h2>
           </div>
         </div>
         {canSubmit && formRegister ? (
